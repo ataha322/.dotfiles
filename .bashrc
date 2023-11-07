@@ -116,18 +116,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
-
-# my aliases
-alias ..='cd ..'
-alias cd..='cd ..'
-alias sspnd='systemctl suspend'
-alias vim='nvim'
-
 export PATH=$PATH:$HOME/go/bin
 export PATH=$PATH:/usr/local/zig
 
-. "$HOME/.cargo/env"
-
+set -o vi
 
 tpd() {
     local TPdevice
@@ -143,4 +135,3 @@ tpd() {
     fi
 }
 
-set -o vi
