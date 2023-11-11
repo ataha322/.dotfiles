@@ -13,13 +13,14 @@ vim.opt.swapfile = false
 
 vim.opt.incsearch = true
 
-vim.opt.termguicolors = true
-
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "number"
 -- vim.opt.colorcolumn = "120"
 
 vim.opt.clipboard = 'unnamedplus'
 
-vim.g.netrw_banner = true
+vim.g.netrw_banner = false
 vim.g.netrw_liststyle = 0
+
+vim.opt.termguicolors = true
+vim.cmd.colorscheme('habamax')
