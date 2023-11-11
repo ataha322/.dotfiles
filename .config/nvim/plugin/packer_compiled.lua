@@ -89,6 +89,11 @@ _G.packer_plugins = {
     path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/harpoon",
     url = "https://github.com/theprimeagen/harpoon"
   },
+  ["kanagawa.nvim"] = {
+    loaded = true,
+    path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/kanagawa.nvim",
+    url = "https://github.com/rebelot/kanagawa.nvim"
+  },
   ["lsp-zero.nvim"] = {
     loaded = true,
     path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/lsp-zero.nvim",
@@ -139,11 +144,6 @@ _G.packer_plugins = {
     path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/toggleterm.nvim",
     url = "https://github.com/akinsho/toggleterm.nvim"
   },
-  undotree = {
-    loaded = true,
-    path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/undotree",
-    url = "https://github.com/mbbill/undotree"
-  },
   ["vim-airline"] = {
     loaded = true,
     path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/vim-airline",
@@ -153,11 +153,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/vim-commentary",
     url = "https://github.com/tpope/vim-commentary"
-  },
-  ["vim-fugitive"] = {
-    loaded = true,
-    path = "/home/ataha322/.local/share/nvim/site/pack/packer/start/vim-fugitive",
-    url = "https://github.com/tpope/vim-fugitive"
   },
   ["vim-surround"] = {
     loaded = true,

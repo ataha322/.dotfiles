@@ -1,7 +1,8 @@
 vim.g.mapleader = " "
-vim.keymap.set("n", "<leader>pv", function()
-    vim.cmd("19Lex")
-end)
+vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+-- vim.keymap.set("n", "<leader>pv", function()
+--     vim.cmd("19Lex")
+-- end)
 
 -- keep cursor in place
 vim.keymap.set("n", "J", "mzJ`z")

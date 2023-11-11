@@ -16,13 +16,11 @@ return require('packer').startup(function(use)
 
     use('nvim-treesitter/nvim-treesitter', { run = ':TSUpdate' })
     use('theprimeagen/harpoon')
-    use('mbbill/undotree')
-    use('tpope/vim-fugitive')
     use('tpope/vim-surround')
     use('tpope/vim-commentary')
     use('vim-airline/vim-airline')
-
-    use {"akinsho/toggleterm.nvim", tag = '*'}
+    use { 'rebelot/kanagawa.nvim' }
+    use { "akinsho/toggleterm.nvim", tag = '*' }
 
     use {
         'VonHeikemen/lsp-zero.nvim',
