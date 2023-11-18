@@ -18,8 +18,11 @@ return require('packer').startup(function(use)
     use('theprimeagen/harpoon')
     use('tpope/vim-surround')
     use('tpope/vim-commentary')
-    use('vim-airline/vim-airline')
     use { "akinsho/toggleterm.nvim", tag = '*' }
+    use {
+        'nvim-lualine/lualine.nvim',
+        -- requires = { 'nvim-tree/nvim-web-devicons', opt = true }
+    }
 
     use {
         'VonHeikemen/lsp-zero.nvim',
