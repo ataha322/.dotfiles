@@ -118,6 +118,7 @@ fi
 
 export PATH=$PATH:$HOME/go/bin
 export PATH=$PATH:/usr/local/zig
+export SIM_HOME=/opt/simics/simics-6.0.169
 
 set -o vi
 
@@ -135,3 +136,6 @@ tpd() {
     fi
 }
 
+pstkys() {
+    xclip -selection clipboard -out | tr \\n \\r | xdotool selectwindow windowfocus type --clearmodifiers --delay 30 --window %@ --file -
+}

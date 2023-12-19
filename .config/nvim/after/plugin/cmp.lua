@@ -8,15 +8,12 @@ cmp.setup({
         completeopt = 'menu,menuone,noinsert',
 
         -- Turn off autocompletion
-        -- autocomplete = false
+        autocomplete = false
     },
 
     mapping = cmp.mapping.preset.insert({
         -- `Enter` key to confirm completion
         ['<C-CR>'] = cmp.mapping.confirm({ select = false }),
-
-        -- Ctrl+Space to trigger completion menu
-        ['<C-Space>'] = cmp.mapping.complete(),
 
         -- Navigate between snippet placeholder
         ['<C-f>'] = cmp_action.luasnip_jump_forward(),
@@ -26,5 +23,8 @@ cmp.setup({
         ['<C-u>'] = cmp.mapping.scroll_docs(-4),
         ['<C-d>'] = cmp.mapping.scroll_docs(4),
 
+        -- Tab completion
+        ['<Tab>'] = cmp_action.tab_complete(),
+        ['<S-Tab>'] = cmp_action.select_prev_or_fallback(),
     })
 })
