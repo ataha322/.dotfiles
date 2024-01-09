@@ -1,19 +1,16 @@
-autoload -Uz compinit promptinit
+autoload -Uz compinit
 compinit
-promptinit
-
-# This will set the default prompt to the walters theme
-prompt walters
-
 zstyle ':completion:*' menu select
 zstyle ':completion::complete:*' gain-privileges 1
 
-autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-[[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
-[[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
+autoload -Uz promptinit && promptinit
+prompt_mytheme_setup() {
+    PS1='%F{green}%2~%f %F{magenta}%?%f ~> '
+}
+prompt_themes+=( mytheme )
+prompt mytheme
 
+bindkey -v
 
 alias ls="ls --color -F"
 alias ll="ls --color -alFh"
@@ -21,8 +18,7 @@ alias l="ls -CF"
 alias sspnd="systemctl suspend"
 alias ..="cd .."
 alias vim="nvim"
-
-
+alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
 
 tpd() {
     local TPdevice

@@ -8,7 +8,7 @@ cmp.setup({
         completeopt = 'menu,menuone,noinsert',
 
         -- Turn off autocompletion
-        autocomplete = false
+        -- autocomplete = false
     },
 
     mapping = cmp.mapping.preset.insert({

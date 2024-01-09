@@ -1,6 +1,5 @@
 # general system setup
 mkdir ~/.local/bin
-export PATH=$PATH:$HOME/.local/bin
 
 sudo kernelstub -d "quiet systemd.show_status=false splash"
 sudo kernelstub -a "systemd.show_status=true"
@@ -47,8 +46,3 @@ sudo apt update
 sudo apt install -y openrazer-meta
 sudo gpasswd -a $USER plugdev
 pip install razer-cli
-
-# fish
-sudo apt-add-repository ppa:fish-shell/release-3
-sudo apt update
-sudo apt install -y fish

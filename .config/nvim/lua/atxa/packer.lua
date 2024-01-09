@@ -15,7 +15,6 @@ return require('packer').startup(function(use)
     })
 
     use('nvim-treesitter/nvim-treesitter', { run = ':TSUpdate' })
-    use('theprimeagen/harpoon')
     use('tpope/vim-surround')
     use('tpope/vim-commentary')
     use { "akinsho/toggleterm.nvim", tag = '*' }
