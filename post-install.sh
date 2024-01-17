@@ -10,7 +10,7 @@ sudo system76-power graphics hybrid
 sudo apt update && sudo apt upgrade -y
 sudo apt autopurge
 
-sudo apt install -y vlc gnome-tweaks xclip python3-pip gh
+sudo apt install -y vlc gnome-tweaks xclip python3-pip gh clangd
 
 
 

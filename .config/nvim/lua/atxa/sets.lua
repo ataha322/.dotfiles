@@ -24,3 +24,5 @@ vim.g.netrw_liststyle = 0
 
 vim.opt.termguicolors = true
 vim.cmd.colorscheme('habamax')
+
+vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
