@@ -4,10 +4,10 @@ vim.opt.relativenumber = true
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
+vim.opt.expandtab = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
 
 vim.opt.swapfile = false
 
@@ -20,9 +20,10 @@ vim.opt.signcolumn = "number"
 vim.opt.clipboard = 'unnamedplus'
 
 vim.g.netrw_banner = false
-vim.g.netrw_liststyle = 0
+vim.g.netrw_liststyle = 3
 
 vim.opt.termguicolors = true
 vim.cmd.colorscheme('habamax')
 
 vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
+
