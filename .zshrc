@@ -10,7 +10,7 @@ prompt_mytheme_setup() {
 prompt_themes+=( mytheme )
 prompt mytheme
 
-bindkey -v
+bindkey -e
 
 alias ls="ls --color -F"
 alias ll="ls --color -alFh"
@@ -19,6 +19,8 @@ alias sspnd="systemctl suspend"
 alias ..="cd .."
 alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
+alias dragon="open ~/Documents/Textbooks/dragon-book.pdf"
+alias ssh="kitty +kitten ssh"
 
 tpd() {
     local TPdevice
@@ -37,4 +39,3 @@ tpd() {
 pstkys() {
     xclip -selection clipboard -out | tr \\n \\r | xdotool selectwindow windowfocus type --clearmodifiers --delay 30 --window %@ --file -
 }
-

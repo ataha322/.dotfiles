@@ -18,6 +18,8 @@ return require('packer').startup(function(use)
     use('tpope/vim-surround')
     use('tpope/vim-commentary')
     use { "akinsho/toggleterm.nvim", tag = '*' }
+
+    -- TODO: Lualine terribly slows down neovim when opening files over network
     use {
         'nvim-lualine/lualine.nvim',
         requires = { 'nvim-tree/nvim-web-devicons', opt = true }
