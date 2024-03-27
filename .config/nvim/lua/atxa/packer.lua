@@ -17,7 +17,8 @@ return require('packer').startup(function(use)
     use('nvim-treesitter/nvim-treesitter', { run = ':TSUpdate' })
     use('tpope/vim-surround')
     use('tpope/vim-commentary')
-    use { "akinsho/toggleterm.nvim", tag = '*' }
+    use { 'akinsho/toggleterm.nvim', tag = '*' }
+    use { 'christoomey/vim-tmux-navigator' }
 
     -- TODO: Lualine terribly slows down neovim when opening files over network
     use {
@@ -25,20 +26,20 @@ return require('packer').startup(function(use)
         requires = { 'nvim-tree/nvim-web-devicons', opt = true }
     }
 
-    use {
-        'VonHeikemen/lsp-zero.nvim',
-        branch = 'v3.x',
-        requires = {
-            --- Uncomment these if you want to manage LSP servers from neovim
-            { 'williamboman/mason.nvim' },
-            { 'williamboman/mason-lspconfig.nvim' },
+    -- use {
+    --     'VonHeikemen/lsp-zero.nvim',
+    --     branch = 'v3.x',
+    --     requires = {
+    --         --- Uncomment these if you want to manage LSP servers from neovim
+    --         { 'williamboman/mason.nvim' },
+    --         { 'williamboman/mason-lspconfig.nvim' },
 
-            -- LSP Support
-            { 'neovim/nvim-lspconfig' },
-            -- Autocompletion
-            { 'hrsh7th/nvim-cmp' },
-            { 'hrsh7th/cmp-nvim-lsp' },
-            { 'L3MON4D3/LuaSnip' },
-        }
-    }
+    --         -- LSP Support
+    --         { 'neovim/nvim-lspconfig' },
+    --         -- Autocompletion
+    --         { 'hrsh7th/nvim-cmp' },
+    --         { 'hrsh7th/cmp-nvim-lsp' },
+    --         { 'L3MON4D3/LuaSnip' },
+    --     }
+    -- }
 end)
