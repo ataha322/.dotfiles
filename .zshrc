@@ -20,7 +20,7 @@ alias ..="cd .."
 alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
 alias dragon="open ~/Documents/Textbooks/dragon-book.pdf"
-alias ssh="kitty +kitten ssh"
+# alias ssh="kitty +kitten ssh"
 
 tpd() {
     local TPdevice
