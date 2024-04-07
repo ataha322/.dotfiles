@@ -79,6 +79,11 @@ _G.packer_plugins = {
     path = "/home/atxa/.local/share/nvim/site/pack/packer/start/lualine.nvim",
     url = "https://github.com/nvim-lualine/lualine.nvim"
   },
+  neovim = {
+    loaded = true,
+    path = "/home/atxa/.local/share/nvim/site/pack/packer/start/neovim",
+    url = "https://github.com/rose-pine/neovim"
+  },
   ["nvim-treesitter"] = {
     loaded = true,
     path = "/home/atxa/.local/share/nvim/site/pack/packer/start/nvim-treesitter",

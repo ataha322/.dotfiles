@@ -19,6 +19,8 @@ return require('packer').startup(function(use)
     use('tpope/vim-commentary')
     use { 'akinsho/toggleterm.nvim', tag = '*' }
     use { 'christoomey/vim-tmux-navigator' }
+    use { 'rose-pine/neovim' }
+
 
     -- TODO: Lualine terribly slows down neovim when opening files over network
     use {
