@@ -31,8 +31,3 @@ vim.keymap.set('v', '<leader>fv', function()
     local text = vim.getVisualSelection()
     builtin.grep_string({ search = text })
 end)
-
--- vim.keymap.set('n', '<leader>fg', function()
-    --     builtin.grep_string({ search = vim.fn.input("Grep > ") });
-    -- end)
-    --

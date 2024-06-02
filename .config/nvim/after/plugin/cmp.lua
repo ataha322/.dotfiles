@@ -1,30 +1,53 @@
--- local cmp = require('cmp')
--- local cmp_action = require('lsp-zero').cmp_action()
+local cmp = require('cmp')
+local cmp_action = require('lsp-zero').cmp_action()
+local cmp_format = require('lsp-zero').cmp_format({ details = true })
 
--- cmp.setup({
---     -- Preselect the first item in the completion menu
---     preselect = 'item',
---     completion = {
---         completeopt = 'menu,menuone,noinsert',
+cmp.setup({
+    sources = {
+        { name = 'nvim_lsp' },
+        { name = 'luasnip' },
+    },
 
---         -- Turn off autocompletion
---         -- autocomplete = false
---     },
+    mapping = cmp.mapping.preset.insert({
+        ['<C-CR>'] = cmp.mapping.confirm({ select = false }),
 
---     mapping = cmp.mapping.preset.insert({
---         -- `Enter` key to confirm completion
---         ['<C-CR>'] = cmp.mapping.confirm({ select = false }),
+        ['<C-f>'] = cmp_action.luasnip_jump_forward(),
+        ['<C-b>'] = cmp_action.luasnip_jump_backward(),
 
---         -- Navigate between snippet placeholder
---         ['<C-f>'] = cmp_action.luasnip_jump_forward(),
---         ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+        ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-d>'] = cmp.mapping.scroll_docs(4),
 
---         -- Scroll up and down in the completion documentation
---         ['<C-u>'] = cmp.mapping.scroll_docs(-4),
---         ['<C-d>'] = cmp.mapping.scroll_docs(4),
+        ['<C-p>'] = cmp.mapping(function()
+            if cmp.visible() then
+                cmp.select_prev_item({ behavior = 'insert' })
+            else
+                cmp.complete()
+            end
+        end),
+        ['<C-n>'] = cmp.mapping(function()
+            if cmp.visible() then
+                cmp.select_next_item({ behavior = 'insert' })
+            else
+                cmp.complete()
+            end
+        end),
 
---         -- Tab completion
---         ['<Tab>'] = cmp_action.tab_complete(),
---         ['<S-Tab>'] = cmp_action.select_prev_or_fallback(),
---     })
--- })
+        ['<Tab>'] = cmp_action.luasnip_supertab(),
+        ['<S-Tab>'] = cmp_action.luasnip_shift_supertab(),
+    }),
+
+    snippet = {
+        expand = function(args)
+            require('luasnip').lsp_expand(args.body)
+        end,
+    },
+
+    preselect = 'item',
+    completion = {
+        completeopt = 'menu,menuone,noinsert',
+        autocomplete = false,
+    },
+
+    --- (Optional) Show source name in completion menu
+    formatting = cmp_format,
+})
