@@ -31,9 +31,6 @@ cmp.setup({
                 cmp.complete()
             end
         end),
-
-        ['<Tab>'] = cmp_action.luasnip_supertab(),
-        ['<S-Tab>'] = cmp_action.luasnip_shift_supertab(),
     }),
 
     snippet = {

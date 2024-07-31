@@ -35,7 +35,6 @@ wget https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.
 tar -xzvf nvim-linux64.tar.gz
 sudo cp -r nvim-linux64/bin/* /usr/local/bin/
 sudo cp -r nvim-linux64/lib/* /usr/local/lib/
-sudo cp -r nvim-linux64/man/* /usr/local/man/
 sudo cp -r nvim-linux64/share/* /usr/local/share/
 rm -r nvim-linux64
 sudo update-alternatives --install /usr/bin/editor editor /usr/local/bin/nvim 50
@@ -46,3 +45,10 @@ sudo apt update
 sudo apt install -y openrazer-meta
 sudo gpasswd -a $USER plugdev
 pip install razer-cli
+
+# tmux
+## Install TPM:
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+## then copy .tmux.conf from these dotfiles into ~/
+## <prefix>+I to install plugins
+## <prefix>+U to update plugins

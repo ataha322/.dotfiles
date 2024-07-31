@@ -19,6 +19,7 @@ return require('packer').startup(function(use)
     use { 'akinsho/toggleterm.nvim', tag = '*' }
     use { 'christoomey/vim-tmux-navigator' }
     use { 'rose-pine/neovim' }
+    use { 'tpope/vim-fugitive' }
 
     use {
         'nvim-lualine/lualine.nvim',

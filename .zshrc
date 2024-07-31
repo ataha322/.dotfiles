@@ -19,8 +19,8 @@ alias sspnd="systemctl suspend"
 alias ..="cd .."
 alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
-alias dragon="open ~/Documents/Textbooks/dragon-book.pdf"
 # alias ssh="kitty +kitten ssh"
+alias rsnc="rsync -havzP --stats --include='*/' --include='*.c' --include='*.h' --include='*.sh' --include='*.xml' --include='*.json' --include='*.ctl' --include='*.mib' --exclude='*'"
 
 tpd() {
     local TPdevice
@@ -38,4 +38,11 @@ tpd() {
 
 pstkys() {
     xclip -selection clipboard -out | tr \\n \\r | xdotool selectwindow windowfocus type --clearmodifiers --delay 30 --window %@ --file -
+}
+
+cdup() {
+    if ! [[ $1 =~ ^[0-9]+$ ]] ; then
+        echo "error: Not a number" >&2; return 1
+    fi
+    cd $(printf "%0.0s../" $(seq 1 $1))
 }
