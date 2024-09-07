@@ -19,8 +19,10 @@ alias sspnd="systemctl suspend"
 alias ..="cd .."
 alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
-# alias ssh="kitty +kitten ssh"
-alias rsnc="rsync -havzP --stats --include='*/' --include='*.c' --include='*.h' --include='*.sh' --include='*.xml' --include='*.json' --include='*.ctl' --include='*.mib' --exclude='*'"
+alias kssh="kitten ssh"
+alias rsnc="rsync -havzcP --stats --include='*/' --include='*.c' --include='*.h' --include='*.sh' --include='*.xml' --include='*.json' --include='*.ctl' --include='*.mib' --exclude='*'"
+
+# export TERM=xterm-256color
 
 tpd() {
     local TPdevice
