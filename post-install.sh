@@ -10,9 +10,7 @@ sudo system76-power graphics hybrid
 sudo apt update && sudo apt upgrade -y
 sudo apt autopurge
 
-sudo apt install -y vlc gnome-tweaks xclip python3 python3-pip gh clangd ripgrep fd-find htop
-
-
+sudo apt install -y vlc gnome-tweaks xclip python3 python3-pip gh ripgrep fd-find htop tmux
 
 # JetBrainsMono Nerd Font
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
@@ -46,9 +44,9 @@ sudo apt install -y openrazer-meta
 sudo gpasswd -a $USER plugdev
 pip install razer-cli
 
-# tmux
-## Install TPM:
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-## then copy .tmux.conf from these dotfiles into ~/
-## <prefix>+I to install plugins
-## <prefix>+U to update plugins
+# gdm background on lock screen
+sudo apt install libglib2.0-dev-bin
+wget github.com/Chillsmeit/jammy-change-gdm-background/raw/master/jammy-change-gdm-background
+chmod +x jammy-change-gdm-background
+sudo ./jammy-change-gdm-background /path/to/my/image
+

@@ -21,6 +21,7 @@ alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
 alias kssh="kitten ssh"
 alias rsnc="rsync -havzcP --stats --include='*/' --include='*.c' --include='*.h' --include='*.sh' --include='*.xml' --include='*.json' --include='*.ctl' --include='*.mib' --exclude='*'"
+alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*'"
 
 # export TERM=xterm-256color
 
