@@ -12,8 +12,7 @@ vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
 -- delete to void
-vim.keymap.set("n", "<leader>d", "\"_d")
-vim.keymap.set("v", "<leader>d", "\"_d")
+vim.keymap.set({ "n", "v" }, "<leader>d", "\"_d")
 vim.keymap.set("v", "<leader>p", "\"_dP")
 
 -- replace all occurrences
@@ -25,6 +24,11 @@ vim.keymap.set("n", "<C-n>", vim.cmd.bn)
 vim.keymap.set("n", "<C-p>", vim.cmd.bp)
 vim.keymap.set("n", "<C-x>", vim.cmd.bd)
 
+-- clear search highlights
+vim.keymap.set("n", "<leader>nh", vim.cmd.nohlsearch)
+
+vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
+
 -- copy to clipboard current directory path
 vim.api.nvim_create_user_command("Cpp", function()
     local path = vim.fn.expand("%:p")
@@ -33,7 +37,7 @@ vim.api.nvim_create_user_command("Cpp", function()
 end, {})
 
 
--- compile latex into pdf
+-- Compile latex into pdf
 vim.api.nvim_create_user_command("LL", function()
     local cmd_pdflatex = 'pdflatex -file-line-error -halt-on-error -interaction=nonstopmode '
     local cmd = cmd_pdflatex .. vim.fn.expand("%")
@@ -56,4 +60,12 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
 	    vim.cmd("only")
 	end
     end,
+})
+
+-- Highlight when yanking
+vim.api.nvim_create_autocmd('TextYankPost', {
+  desc = 'Highlight when yanking',
+  callback = function()
+    vim.highlight.on_yank({ timeout = 300 })
+  end,
 })

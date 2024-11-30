@@ -21,10 +21,10 @@ return require('packer').startup(function(use)
     use { 'rose-pine/neovim' }
     use { 'tpope/vim-fugitive' }
 
-    use {
-        'nvim-lualine/lualine.nvim',
-        requires = { 'nvim-tree/nvim-web-devicons', opt = true }
-    }
+    -- use {
+    --     'nvim-lualine/lualine.nvim',
+    --     requires = { 'nvim-tree/nvim-web-devicons', opt = true }
+    -- }
 
     use {
         'VonHeikemen/lsp-zero.nvim',
@@ -39,7 +39,6 @@ return require('packer').startup(function(use)
             -- Autocompletion
             { 'hrsh7th/nvim-cmp' },
             { 'hrsh7th/cmp-nvim-lsp' },
-            -- { 'L3MON4D3/LuaSnip' },
         }
     }
 end)
