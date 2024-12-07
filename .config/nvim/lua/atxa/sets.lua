@@ -30,7 +30,7 @@ vim.opt.smartcase = true
 
 vim.opt.breakindent = true
 vim.opt.mouse = 'a'
-vim.opt.undofile = true
+vim.opt.undofile = false
 vim.opt.cursorline = true
 
 --  Schedule the setting after `UiEnter` because it can increase startup-time.

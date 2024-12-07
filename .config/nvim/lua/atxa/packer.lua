@@ -26,19 +26,10 @@ return require('packer').startup(function(use)
     --     requires = { 'nvim-tree/nvim-web-devicons', opt = true }
     -- }
 
-    use {
-        'VonHeikemen/lsp-zero.nvim',
-        branch = 'v3.x',
-        requires = {
-            --- Uncomment these if you want to manage LSP servers from neovim
-            { 'williamboman/mason.nvim' },
-            { 'williamboman/mason-lspconfig.nvim' },
-
-            -- LSP Support
-            { 'neovim/nvim-lspconfig' },
-            -- Autocompletion
-            { 'hrsh7th/nvim-cmp' },
-            { 'hrsh7th/cmp-nvim-lsp' },
-        }
-    }
+    -- LSP
+    use({'neovim/nvim-lspconfig'})
+    use({'hrsh7th/nvim-cmp'})
+    use({'hrsh7th/cmp-nvim-lsp'})
+    use({'williamboman/mason.nvim'})
+    use({'williamboman/mason-lspconfig.nvim'})
 end)

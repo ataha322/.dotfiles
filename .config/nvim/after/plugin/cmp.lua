@@ -1,13 +1,11 @@
 local cmp = require('cmp')
-local cmp_action = require('lsp-zero').cmp_action()
-local cmp_format = require('lsp-zero').cmp_format({ details = true })
 
 cmp.setup({
-    -- snippet = {
-    --     expand = function(args)
-    --         vim.snippet.expand(args.body)
-    --     end,
-    -- },
+    snippet = {
+        expand = function(args)
+            vim.snippet.expand(args.body)
+        end,
+    },
 
     window = {
         -- completion = cmp.config.window.bordered(),
@@ -15,29 +13,20 @@ cmp.setup({
     },
 
     mapping = cmp.mapping.preset.insert({
-        -- ['<C-CR>'] = cmp.mapping.confirm({ select = true }),
-        ['<C-e>'] = function(fallback)
-            if cmp.visible() then
-                cmp.mapping.confirm({ select = true })
-            else
-                fallback()
-            end
-        end,
-
         ['<C-u>'] = cmp.mapping.scroll_docs(-4),
         ['<C-d>'] = cmp.mapping.scroll_docs(4),
 
-        ['<C-p>'] = cmp.mapping(function(fallback)
+        ['<C-n>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
-                cmp.select_prev_item()
+                cmp.select_next_item()
             else
                 -- cmp.complete()
                 fallback()
             end
         end),
-        ['<C-n>'] = cmp.mapping(function(fallback)
+        ['<C-p>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
-                cmp.select_next_item()
+                cmp.select_prev_item()
             else
                 -- cmp.complete()
                 fallback()
@@ -56,7 +45,4 @@ cmp.setup({
         completeopt = 'menu,menuone,noinsert',
         -- autocomplete = false,
     },
-
-    --- (Optional) Show source name in completion menu
-    formatting = cmp_format,
 })
