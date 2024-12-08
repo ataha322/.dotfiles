@@ -1,10 +1,19 @@
 local telescope = require('telescope')
 local builtin = require('telescope.builtin')
 local themes = require('telescope.themes')
+local actions = require('telescope.actions')
 telescope.setup({
     defaults = {
         preview = {
             timeout = 2000
+        },
+        mappings = {
+            n = {
+                ['<C-x>'] = actions.delete_buffer
+            },
+            i = {
+                ['<C-x>'] = actions.delete_buffer
+            }
         }
     }
 })
