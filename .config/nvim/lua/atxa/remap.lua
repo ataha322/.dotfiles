@@ -27,6 +27,17 @@ vim.keymap.set("n", "<C-x>", vim.cmd.bd)
 -- clear search highlights
 vim.keymap.set("n", "<leader>nh", vim.cmd.nohlsearch)
 
+-- manipulate CWD
+vim.keymap.set("n", "<leader>gg", vim.cmd.pwd)
+vim.keymap.set("n", "<leader>gw", function()
+    vim.cmd.cd("%:h") -- cd to current working file directory
+    vim.cmd.pwd()
+end)
+vim.keymap.set("n", "<leader>gs", function()
+    vim.cmd.cd("..")
+    vim.cmd.pwd()
+end)
+
 vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
 
 -- copy to clipboard current directory path
