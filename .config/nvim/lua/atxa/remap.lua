@@ -38,6 +38,11 @@ vim.keymap.set("n", "<leader>gs", function()
     vim.cmd.pwd()
 end)
 
+-- run python on selected lines
+vim.keymap.set({ "n", "v" }, "<leader>py", function()
+    vim.cmd("w ! python")
+end)
+
 vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
 
 -- copy to clipboard current directory path

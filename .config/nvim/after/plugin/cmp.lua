@@ -43,6 +43,6 @@ cmp.setup({
     preselect = 'item',
     completion = {
         completeopt = 'menu,menuone,noinsert',
-        -- autocomplete = false,
+        autocomplete = false,
     },
 })
