@@ -1,3 +1,7 @@
+local function go_to_normal_mode()
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), 'x', false)
+end
+
 vim.g.mapleader = " "
 -- vim.keymap.set("n", "<leader>ee", vim.cmd.Ex)
 vim.keymap.set("n", "<leader>ee", function()
@@ -38,9 +42,20 @@ vim.keymap.set("n", "<leader>gs", function()
     vim.cmd.pwd()
 end)
 
--- run python on selected lines
-vim.keymap.set({ "n", "v" }, "<leader>py", function()
+-- run python on buffer
+vim.keymap.set("n", "<leader>py", function()
     vim.cmd("w ! python")
+end)
+-- run python on selected lines
+vim.keymap.set("v", "<leader>py", function()
+    local start_line = vim.fn.line("v")
+    local end_line = vim.fn.line(".")
+    if start_line > end_line then
+        start_line, end_line = end_line, start_line
+    end
+    vim.api.nvim_out_write('\n') -- clear command line
+    vim.cmd(start_line .. "," .. end_line .. "w ! python")
+    go_to_normal_mode()
 end)
 
 vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
@@ -71,17 +86,17 @@ end, {})
 vim.api.nvim_create_autocmd("BufWinEnter", {
     pattern = "*.txt",
     callback = function()
-	if vim.bo.filetype == "help" then
-	    vim.bo.buflisted = true
-	    vim.cmd("only")
-	end
+        if vim.bo.filetype == "help" then
+            vim.bo.buflisted = true
+            vim.cmd("only")
+        end
     end,
 })
 
 -- Highlight when yanking
 vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking',
-  callback = function()
-    vim.highlight.on_yank({ timeout = 300 })
-  end,
+    desc = 'Highlight when yanking',
+    callback = function()
+        vim.highlight.on_yank({ timeout = 300 })
+    end,
 })
