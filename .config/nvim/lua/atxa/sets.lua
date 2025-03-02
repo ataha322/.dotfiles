@@ -20,7 +20,7 @@ vim.opt.signcolumn = "number"
 vim.g.netrw_banner = false
 vim.g.netrw_liststyle = 3
 
-vim.opt.termguicolors = true
+-- vim.opt.termguicolors = false
 
 vim.g.have_nerd_font = true
 

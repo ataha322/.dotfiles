@@ -49,4 +49,5 @@ sudo apt install libglib2.0-dev-bin
 wget github.com/Chillsmeit/jammy-change-gdm-background/raw/master/jammy-change-gdm-background
 chmod +x jammy-change-gdm-background
 sudo ./jammy-change-gdm-background /path/to/my/image
+sudo ./jammy-change-gdm-background /home/atxa/Pictures/Wallpapers/pepe_windows.png
 

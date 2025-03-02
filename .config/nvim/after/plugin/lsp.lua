@@ -15,8 +15,7 @@ lspconfig_defaults.capabilities = vim.tbl_deep_extend(
 
 -- This is where you enable features that only work
 -- if there is a language server active in the file
-vim.api.nvim_create_autocmd('LspAttach', {
-    desc = 'LSP actions',
+vim.api.nvim_create_autocmd('LspAttach', { desc = 'LSP actions',
     callback = function(event)
         local opts = {buffer = event.buf}
         vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
@@ -28,7 +27,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
         vim.keymap.set('n', 'gs', vim.lsp.buf.signature_help, opts)
         vim.keymap.set('n', '<F2>', vim.lsp.buf.rename, opts)
         vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-        vim.keymap.set('v', 'gq', function()
+        vim.keymap.set('v', '<F3>', function()
             vim.lsp.buf.format({ async = false, timeout_ms = 5000 })
         end, opts)
         vim.keymap.set('n', '<leader>fs', builtin.lsp_dynamic_workspace_symbols)
@@ -97,4 +96,3 @@ mason_lspconfig.setup({
         end,
     },
 })
-

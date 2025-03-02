@@ -1,7 +1,3 @@
-local function go_to_normal_mode()
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), 'x', false)
-end
-
 vim.g.mapleader = " "
 -- vim.keymap.set("n", "<leader>ee", vim.cmd.Ex)
 vim.keymap.set("n", "<leader>ee", function()
@@ -46,6 +42,7 @@ end)
 vim.keymap.set("n", "<leader>py", function()
     vim.cmd("w ! python")
 end)
+
 -- run python on selected lines
 vim.keymap.set("v", "<leader>py", function()
     local start_line = vim.fn.line("v")
@@ -55,18 +52,12 @@ vim.keymap.set("v", "<leader>py", function()
     end
     vim.api.nvim_out_write('\n') -- clear command line
     vim.cmd(start_line .. "," .. end_line .. "w ! python")
-    go_to_normal_mode()
+    -- go to normal mode
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), 'x', false)
 end)
 
+-- Map 'W' same as 'w'
 vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
-
--- copy to clipboard current directory path
-vim.api.nvim_create_user_command("Cpp", function()
-    local path = vim.fn.expand("%:p")
-    vim.fn.setreg("+", path)
-    vim.notify('Copied "' .. path .. '" to the clipboard!')
-end, {})
-
 
 -- Compile latex into pdf
 vim.api.nvim_create_user_command("LL", function()
@@ -100,3 +91,40 @@ vim.api.nvim_create_autocmd('TextYankPost', {
         vim.highlight.on_yank({ timeout = 300 })
     end,
 })
+
+-- Nvim terminal in a separate unlisted buffer
+vim.api.nvim_create_autocmd('TermOpen', {
+    group = vim.api.nvim_create_augroup('custom-term-open', { clear = true }),
+    callback = function()
+        vim.opt_local.number = false
+        vim.opt_local.relativenumber = false
+    end,
+})
+
+local terminal_bufnr = nil
+local work_bufnr = nil
+local function toggle_terminal()
+    local current_buf = vim.api.nvim_get_current_buf()
+
+    if terminal_bufnr and vim.api.nvim_buf_is_valid(terminal_bufnr) then
+        if current_buf == terminal_bufnr then
+            if work_bufnr and vim.api.nvim_buf_is_valid(work_bufnr) then
+                vim.cmd.buffer(work_bufnr)
+            else
+                vim.cmd.bp()
+            end
+        else
+            work_bufnr = vim.api.nvim_get_current_buf()
+            vim.cmd.buffer(terminal_bufnr)
+        end
+    else
+        work_bufnr = vim.api.nvim_get_current_buf()
+        terminal_bufnr = vim.api.nvim_create_buf(false, true) -- Unlisted scratch buffer
+        vim.cmd.buffer(terminal_bufnr)
+        vim.api.nvim_command('terminal')
+        vim.bo[terminal_bufnr].buflisted = false -- set to unlisted because `terminal` sets to listed
+    end
+end
+
+vim.keymap.set('n', '<leader>tt', toggle_terminal, { noremap = true, silent = true })
+vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>')

@@ -16,15 +16,8 @@ return require('packer').startup(function(use)
     use('nvim-treesitter/nvim-treesitter', { run = ':TSUpdate' })
     use('tpope/vim-surround')
     use('tpope/vim-commentary')
-    use { 'akinsho/toggleterm.nvim', tag = '*' }
-    use { 'christoomey/vim-tmux-navigator' }
-    use { 'rose-pine/neovim' }
     use { 'tpope/vim-fugitive' }
-
-    -- use {
-    --     'nvim-lualine/lualine.nvim',
-    --     requires = { 'nvim-tree/nvim-web-devicons', opt = true }
-    -- }
+    -- use { 'github/copilot.vim' }
 
     -- LSP
     use({'neovim/nvim-lspconfig'})
