@@ -20,7 +20,7 @@ alias ..="cd .."
 alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
 alias kssh="kitten ssh"
-alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*' --exclude='output' --exclude='*.o' --exclude='tags' --exclude='compile_commands.json' --exclude='*.pdf' --exclude='*.xlsx'"
+alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*' --exclude='output' --exclude='*.o' --exclude='tags' --exclude='*.pdf' --exclude='*.xlsx'"
 
 # export TERM=xterm-256color
 
@@ -48,3 +48,7 @@ cdup() {
     fi
     cd $(printf "%0.0s../" $(seq 1 $1))
 }
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

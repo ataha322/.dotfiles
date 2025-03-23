@@ -39,7 +39,9 @@ mason_lspconfig.setup({
     ensure_installed = { 'clangd', 'gopls', 'lua_ls' },
     handlers = {
         function(server_name)
-            lspconfig[server_name].setup({})
+            lspconfig[server_name].setup({
+                autostart = false,
+            })
         end,
         lua_ls = function()
             lspconfig.lua_ls.setup({
@@ -96,3 +98,10 @@ mason_lspconfig.setup({
         end,
     },
 })
+
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+  vim.lsp.handlers.hover, { border = "rounded" }
+)
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+  vim.lsp.handlers.signature_help, { border = "rounded" }
+)
