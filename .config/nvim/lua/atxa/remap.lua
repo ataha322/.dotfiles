@@ -24,6 +24,19 @@ vim.keymap.set("n", "<C-n>", vim.cmd.bn)
 vim.keymap.set("n", "<C-p>", vim.cmd.bp)
 vim.keymap.set("n", "<C-x>", vim.cmd.bd)
 
+-- move lines up and down
+vim.keymap.set("n", "<A-j>", ":m .+1<CR>==")
+vim.keymap.set("n", "<A-k>", ":m .-2<CR>==")
+vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv")
+
+-- highlight all occurrences of the word under cursor
+vim.keymap.set("n", "<leader>h", function()
+    local word = vim.fn.expand("<cword>")
+    vim.cmd("let @/='" .. word .. "'")
+    vim.cmd("set hlsearch")
+end)
+
 -- clear search highlights
 vim.keymap.set("n", "<leader>nh", vim.cmd.nohlsearch)
 

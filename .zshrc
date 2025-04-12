@@ -20,7 +20,31 @@ alias ..="cd .."
 alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
 alias kssh="kitten ssh"
+alias ssh="ssh -C"
 alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*' --exclude='output' --exclude='*.o' --exclude='tags' --exclude='*.pdf' --exclude='*.xlsx'"
+
+eta() {
+    local clock_status
+    if [[ $1 == "in" ]]; then
+        clock_status="Arrival"
+    elif [[ $1 == "out" ]]; then
+        clock_status="Work+Report"
+    elif [[ $1 == "break" ]]; then
+        clock_status="Break+Start"
+    elif [[ $1 == "end" ]]; then
+        clock_status="Break+End"
+    else
+        echo "Usage: eta [in|out|break|end]"
+        return 1
+    fi
+    curl --silent --output /dev/null --show-error --fail 'https://eta.inango.com/timeclock.php' \
+        --data-raw "left_fullname=aaltyyev&employee_passwd=Tns_23mic&left_inout=$clock_status&submit_button=Submit"
+    if [[ $? -eq 0 ]]; then
+        notify-send -i emblem-nowrite "ETA" "$clock_status"
+    else
+        notify-send -i emblem-nowrite "ETA" "Failed to clock $clock_status"
+    fi
+}
 
 # export TERM=xterm-256color
 
