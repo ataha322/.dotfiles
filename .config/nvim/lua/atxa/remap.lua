@@ -20,8 +20,8 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 vim.keymap.set("v", "<leader>s", [[:s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
 -- switch or delete buffers
-vim.keymap.set("n", "<C-n>", vim.cmd.bn)
-vim.keymap.set("n", "<C-p>", vim.cmd.bp)
+-- vim.keymap.set("n", "<C-n>", vim.cmd.bn)
+-- vim.keymap.set("n", "<C-p>", vim.cmd.bp)
 vim.keymap.set("n", "<C-x>", vim.cmd.bd)
 
 -- move lines up and down
@@ -36,7 +36,6 @@ vim.keymap.set("n", "<leader>h", function()
     vim.cmd("let @/='" .. word .. "'")
     vim.cmd("set hlsearch")
 end)
-
 -- clear search highlights
 vim.keymap.set("n", "<leader>nh", vim.cmd.nohlsearch)
 

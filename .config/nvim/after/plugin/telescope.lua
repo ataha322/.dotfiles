@@ -14,11 +14,12 @@ telescope.setup({
             i = {
                 ['<C-x>'] = actions.delete_buffer
             }
-        }
+        },
+        border = false,
     }
 })
 
-function vim.getVisualSelection()
+function GetVisualSelection()
     vim.cmd('noau normal! "vy"')
     local text = vim.fn.getreg('v')
     vim.fn.setreg('v', {})
@@ -40,12 +41,10 @@ vim.keymap.set('n', '<leader>fr', builtin.resume, {})
 vim.keymap.set('n', '<leader>fc', builtin.colorscheme, {})
 vim.keymap.set('n', '<leader><leader>', builtin.buffers, {})
 vim.keymap.set('v', '<leader>fv', function()
-    local text = vim.getVisualSelection()
-    builtin.grep_string({ search = text })
+    builtin.grep_string({ search = GetVisualSelection() })
 end)
 vim.keymap.set('n', '<leader>/', function()
-    -- builtin.current_buffer_fuzzy_find(themes.get_cursor {
     builtin.current_buffer_fuzzy_find(themes.get_dropdown {
         previewer = false,
     })
-end, { desc = '[/] Fuzzily search in current buffer' })
+end)
