@@ -21,7 +21,8 @@ alias vim="nvim"
 alias ltx="pdflatex -file-line-error -halt-on-error -interaction=nonstopmode"
 alias kssh="kitten ssh"
 alias ssh="ssh -C"
-alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*' --exclude='output' --exclude='*.o' --exclude='tags' --exclude='*.pdf' --exclude='*.xlsx'"
+alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*' --exclude='output' --exclude='*.o' --exclude='tags' --exclude='*.pdf' --exclude='*.xlsx' --exclude='.cache'"
+alias amxdocker="docker exec -ti --user $USER amxdev /bin/bash"
 
 eta() {
     local clock_status
@@ -40,9 +41,9 @@ eta() {
     curl --silent --output /dev/null --show-error --fail 'https://eta.inango.com/timeclock.php' \
         --data-raw "left_fullname=aaltyyev&employee_passwd=Tns_23mic&left_inout=$clock_status&submit_button=Submit"
     if [[ $? -eq 0 ]]; then
-        notify-send -i emblem-nowrite "ETA" "$clock_status"
+        notify-send "ETA" "$clock_status"
     else
-        notify-send -i emblem-nowrite "ETA" "Failed to clock $clock_status"
+        notify-send "ETA" "Failed to clock $clock_status"
     fi
 }
 
@@ -64,13 +65,6 @@ tpd() {
 
 pstkys() {
     xclip -selection clipboard -out | tr \\n \\r | xdotool selectwindow windowfocus type --clearmodifiers --delay 30 --window %@ --file -
-}
-
-cdup() {
-    if ! [[ $1 =~ ^[0-9]+$ ]] ; then
-        echo "error: Not a number" >&2; return 1
-    fi
-    cd $(printf "%0.0s../" $(seq 1 $1))
 }
 
 export NVM_DIR="$HOME/.nvm"

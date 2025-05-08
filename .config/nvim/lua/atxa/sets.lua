@@ -20,7 +20,7 @@ vim.opt.swapfile = false
 vim.g.netrw_banner = false
 vim.g.netrw_liststyle = 3
 
--- vim.opt.termguicolors = false
+-- vim.opt.termguicolors = true
 
 vim.g.have_nerd_font = true
 

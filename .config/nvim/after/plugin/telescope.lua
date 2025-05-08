@@ -9,11 +9,8 @@ telescope.setup({
         },
         mappings = {
             n = {
-                ['<C-x>'] = actions.delete_buffer
+                ['<leader>q'] = actions.delete_buffer
             },
-            i = {
-                ['<C-x>'] = actions.delete_buffer
-            }
         },
         border = false,
     }
