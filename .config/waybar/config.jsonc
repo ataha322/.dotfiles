@@ -10,7 +10,6 @@
         "clock",
         "privacy",
     ],
-    "modules-center": ["wlr/taskbar"],
     "modules-right": [
         "backlight",
         "network",
@@ -24,12 +23,6 @@
         "tray",
         "battery",
     ],
-    "wlr/taskbar": {
-        // "format": "{icon}",
-        "format": "{icon} {title:.10}",
-        "icon-size": 18,
-        "on-click": "activate",
-    },
     "tray": {
         "icon-size": 18,
         "spacing": 10
