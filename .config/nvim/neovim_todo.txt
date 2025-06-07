@@ -1,0 +1,24 @@
+1. File tree - either make netrw usable or use oil.nvim or something else.
+* Support toggle - open/close netrw on the same shortcut.
+* Research file explorers in vim.
+* Anything like mc?
+* I could just use mc, then need to deactivate netrw (or have it to show a simple file tree)
+
+2. AI agent chat.
+* Try to get copilotchat to work conveniently.
+** Are prompt prefixes useful?
+** Figure out prefix notations
+* Or try codecompanion.
+* When will tpope release official support?
+
+3. Make neovim+kitty work on macos.
+
+4. Do I want to swap fn and control keys on macos?
+
+5. Figure out the problem with alt key on macos.
+* Nvim seems to treat `command` like `alt`, but this is conflicting with system shortcuts.
+
+6. Buffer switches `[b` and `]b` don't work in some buffers like terminal or netrw.
+I think this is because they're unlisted.
+
+7. Lsp servers arent' attached if file is opened directly - example `nvim main.go`

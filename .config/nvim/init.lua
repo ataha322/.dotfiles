@@ -36,7 +36,7 @@ vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 
-vim.opt.clipboard = 'unnamedplus'
+vim.opt.clipboard = {'unnamedplus', 'unnamedplus'}
 vim.opt.swapfile = false
 
 vim.g.netrw_banner = false
@@ -57,14 +57,12 @@ vim.opt.undofile = false
 vim.opt.cursorline = true
 
 vim.opt.completeopt:append({'noselect', 'fuzzy', 'popup'})
-
-vim.o.winborder = 'rounded'
--- SECTION - CONFIG OPTIONS ---------------------------------------
+-----------------------------------------------------------------------
 
 -- SECTION - COLORSCHEME ----------------------------------------------
 vim.cmd.colorscheme("default")
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "none"})
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none"})
+-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none"})
 -- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
 
 -- torte
@@ -177,12 +175,28 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     end,
 })
 
--- Highlight when yanking
 vim.api.nvim_create_autocmd('TextYankPost', {
     desc = 'Highlight when yanking',
     callback = function()
         vim.highlight.on_yank({ timeout = 300 })
     end,
+})
+
+-- Save and restore window view when switching buffers
+vim.api.nvim_create_autocmd({'BufLeave', 'BufWinLeave'}, {
+    callback = function(args)
+        if vim.bo[args.buf].buftype == '' then  -- Only for normal buffers
+            vim.b[args.buf].view = vim.fn.winsaveview()
+        end
+    end
+})
+
+vim.api.nvim_create_autocmd({'BufEnter', 'BufWinEnter'}, {
+    callback = function(args)
+        if vim.b[args.buf].view ~= nil then
+            vim.fn.winrestview(vim.b[args.buf].view)
+        end
+    end
 })
 
 -- Nvim terminal in a separate unlisted buffer
@@ -237,6 +251,7 @@ require("lazy").setup({
             'nvim-telescope/telescope.nvim', tag = '0.1.8',
             dependencies = { 'nvim-lua/plenary.nvim' }
         },
+        {'nvim-telescope/telescope-ui-select.nvim', event="VeryLazy"},
         {'tpope/vim-surround', event = "VeryLazy"},
         {'tpope/vim-commentary', event = "VeryLazy"},
         {'tpope/vim-fugitive', event = "VeryLazy"},
@@ -266,7 +281,7 @@ require("lazy").setup({
 require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
     ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp",
-        "markdown", "markdown_inline"},
+        "markdown", "markdown_inline", "diff", "jsonc"},
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -320,7 +335,7 @@ telescope.setup({
                 ['<C-x>'] = actions.delete_buffer
             }
         },
-        border = false,
+        border = true,
         layout_strategy = 'vertical',
         layout_config = {
             horizontal = {
@@ -336,13 +351,22 @@ telescope.setup({
                 width = 0.95
             }
         },
+        file_ignore_patterns = {
+            "node_modules",
+        },
     },
     pickers = {
-        current_buffer_fuzzy_find = {
-            theme = "dropdown",
+
+    },
+    extensions = {
+        ["ui-select"] = {
+            themes.get_dropdown {
+                
+            }
         }
     }
 })
+telescope.load_extension("ui-select")
 
 function GetVisualSelection()
     vim.cmd('noau normal! "vy"')
@@ -439,7 +463,7 @@ chat.setup {
 
     system_prompt = 'COPILOT_INSTRUCTIONS', -- System prompt to use (can be specified manually in prompt via /).
 
-    model = 'claude-3.7-sonnet', -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
+    model = 'claude-3.5-sonnet', -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
     agent = 'copilot', -- Default agent to use, see ':CopilotChatAgents' for available agents (can be specified manually in prompt via @).
     context = nil, -- Default context or array of contexts to use (can be specified manually in prompt via #).
     sticky = nil, -- Default sticky prompt or array of sticky prompts to use at start of every new chat.
@@ -452,9 +476,9 @@ chat.setup {
 
     -- default window options
     window = {
-        layout = 'float', -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
-        width = 0.8, -- fractional width of parent, or absolute width in columns when > 1
-        height = 0.8, -- fractional height of parent, or absolute height in rows when > 1
+        layout = 'vertical', -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
+        width = 0.35, -- fractional width of parent, or absolute width in columns when > 1
+        height = 0.5, -- fractional height of parent, or absolute height in rows when > 1
         -- Options below only apply to floating windows
         relative = 'editor', -- 'editor', 'win', 'cursor', 'mouse'
         border = 'single', -- 'none', single', 'double', 'rounded', 'solid', 'shadow'
@@ -469,7 +493,7 @@ chat.setup {
     highlight_selection = true, -- Highlight selection
     highlight_headers = true, -- Highlight headers in chat, disable if using markdown renderers (like render-markdown.nvim)
     references_display = 'virtual', -- 'virtual', 'write', Display references in chat as virtual text or write to buffer
-    auto_follow_cursor = true, -- Auto-follow cursor in chat
+    auto_follow_cursor = false, -- Auto-follow cursor in chat
     auto_insert_mode = false, -- Automatically enter insert mode when opening window and on new prompt
     insert_at_end = false, -- Move cursor to end of buffer when inserting text
     clear_chat_on_new_prompt = false, -- Clears chat on every new prompt
@@ -607,18 +631,19 @@ end, { desc = 'AI Question' })
 
 vim.g.copilot_no_tab_map = true
 vim.g.copilot_settings = { selectedCompletionModel = 'gpt-4o-copilot' }
-vim.keymap.set('i', '<C-j>', 'copilot#Accept("")', {
+vim.keymap.set('i', '<C-f>', 'copilot#Accept("")', {
     expr = true,
     replace_keycodes = false
 })
-vim.keymap.set('i', '<C-l>', '<Plug>(copilot-accept-word)')
-vim.keymap.set('i', '<C-k>', '<Plug>(copilot-accept-line)')
+-- vim.keymap.set('i', '<C-l>', '<Plug>(copilot-accept-word)')
+-- vim.keymap.set('i', '<C-k>', '<Plug>(copilot-accept-line)')
 
 vim.g.copilot_filetypes = {
     ["*"] = false,
     javascript = true,
     typescript = true,
+    javascriptreact = true,
+    typescriptreact = true,
     go = true,
     python = true,
 }
-
