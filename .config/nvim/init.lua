@@ -52,7 +52,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 vim.opt.breakindent = true
-vim.opt.mouse = 'a'
+vim.opt.mouse = ''
 vim.opt.undofile = false
 vim.opt.cursorline = true
 
@@ -61,7 +61,7 @@ vim.opt.completeopt:append({'noselect', 'fuzzy', 'popup'})
 
 -- SECTION - COLORSCHEME ----------------------------------------------
 vim.cmd.colorscheme("default")
--- vim.api.nvim_set_hl(0, "Normal", { bg = "none"})
+vim.api.nvim_set_hl(0, "Normal", { bg = "none"})
 -- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none"})
 -- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
 
