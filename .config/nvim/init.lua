@@ -131,7 +131,7 @@ end)
 
 -- run python on buffer
 vim.keymap.set("n", "<leader>py", function()
-    vim.cmd("w ! python")
+    vim.cmd("w ! python3")
 end)
 
 -- run python on selected lines
@@ -142,7 +142,7 @@ vim.keymap.set("v", "<leader>py", function()
         start_line, end_line = end_line, start_line
     end
     vim.api.nvim_out_write('\n') -- clear command line
-    vim.cmd(start_line .. "," .. end_line .. "w ! python")
+    vim.cmd(start_line .. "," .. end_line .. "w ! python3")
     -- go to normal mode
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), 'x', false)
 end)
@@ -248,14 +248,16 @@ require("lazy").setup({
             build = ":TSUpdate"
         },
         {
-            'nvim-telescope/telescope.nvim', tag = '0.1.8',
-            dependencies = { 'nvim-lua/plenary.nvim' }
+            'nvim-telescope/telescope.nvim',
+            tag = '0.1.8',
+            dependencies = { 'nvim-lua/plenary.nvim' },
+            lazy = false,
         },
+        {'mason-org/mason.nvim', opts = {}, lazy = false},
         {'nvim-telescope/telescope-ui-select.nvim', event="VeryLazy"},
         {'tpope/vim-surround', event = "VeryLazy"},
         {'tpope/vim-commentary', event = "VeryLazy"},
         {'tpope/vim-fugitive', event = "VeryLazy"},
-        {'mason-org/mason.nvim', opts = {}, event = "VeryLazy"},
 
         {
             "CopilotC-Nvim/CopilotChat.nvim",
@@ -281,7 +283,7 @@ require("lazy").setup({
 require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
     ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp",
-        "markdown", "markdown_inline", "diff", "jsonc"},
+        "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml"},
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -360,9 +362,7 @@ telescope.setup({
     },
     extensions = {
         ["ui-select"] = {
-            themes.get_dropdown {
-                
-            }
+            themes.get_dropdown { }
         }
     }
 })
@@ -406,14 +406,15 @@ vim.keymap.set('n', 'grC', builtin.lsp_outgoing_calls)
 vim.api.nvim_create_autocmd('LspAttach', {
     callback = function(ev)
         local client = vim.lsp.get_client_by_id(ev.data.client_id)
-        if client:supports_method('textDocument/completion') then
+        if client and client:supports_method('textDocument/completion') then
             vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
         end
     end,
 })
 
 vim.diagnostic.config({
-    virtual_lines = { current_line = true },
+    -- virtual_lines = { current_line = true },
+    virtual_text = { current_line = true },
 })
 
 -- Servers:
@@ -433,16 +434,70 @@ vim.lsp.config.luals = {
 vim.lsp.config.gopls = {
     cmd = {'gopls'},
     root_markers = {'go.mod', 'go.sum'},
-    filetypes = {'go'},
+    filetypes = {'go', 'gomod', 'gowork', 'gotmpl', 'gosum'},
 }
 
 vim.lsp.config.tsserver = {
     cmd = {'typescript-language-server', '--stdio'},
-    root_markers = {'package.json', 'tsconfig.json', 'jsconfig.json'},
+    root_markers = {'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json'},
     filetypes = {'javascript', 'typescript', 'javascriptreact', 'typescriptreact'},
+    settings = {
+        configuration = {
+            preferGoToSourceDefinition = true,
+        },
+    },
 }
 
-vim.lsp.enable({'luals', 'clangd', 'gopls', 'tsserver'})
+vim.lsp.config.eslint = {
+    cmd = {'vscode-eslint-language-server', '--stdio'},
+    root_markers = {'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json'},
+    filetypes = {'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'javascript.jsx', 'typescript.jsx'},
+    settings = {
+        useESLintClass = true,
+        nodePath = "",
+        codeActionsOnSave = {
+            enable = false,
+            mode = "all",
+        },
+        experimental = {
+            useFlatConfig = false,
+        },
+    }
+}
+
+vim.lsp.config.pyright = {
+    cmd = { 'basedpyright-langserver', '--stdio' },
+    filetypes = { 'python' },
+    root_markers = {
+        'pyproject.toml',
+        'setup.py',
+        'setup.cfg',
+        'requirements.txt',
+        'Pipfile',
+        'pyrightconfig.json',
+        '.git',
+    },
+    settings = {
+        basedpyright = {
+            analysis = {
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+                diagnosticMode = 'workspace',
+                typeCheckingMode = "off",
+                inlayHints = {
+                    functionReturnTypes = false,
+                    variableTypes = false,
+                },
+            },
+        },
+        python = {
+            pythonPath = {"venv/bin/python", ".venv/bin/python", "/opt/homebrew/bin/python3", "/usr/bin/python3"},
+            venvPath = {"venv", ".venv"},
+        },
+    },
+}
+
+vim.lsp.enable({'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright'})
 
 -- grn in Normal mode maps to vim.lsp.buf.rename()
 -- gra in Normal and Visual mode maps to vim.lsp.buf.code_action()
@@ -452,6 +507,7 @@ vim.keymap.set("n", "grD", function()
     vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end)
 vim.keymap.set("n", "grf", vim.lsp.buf.format)
+vim.keymap.set("v", "grf", vim.lsp.buf.format)
 -----------------------------------------------------------------------------------------
 
 
@@ -635,8 +691,24 @@ vim.keymap.set('i', '<C-f>', 'copilot#Accept("")', {
     expr = true,
     replace_keycodes = false
 })
--- vim.keymap.set('i', '<C-l>', '<Plug>(copilot-accept-word)')
--- vim.keymap.set('i', '<C-k>', '<Plug>(copilot-accept-line)')
+vim.keymap.set('i', '<C-\\>', '<Plug>(copilot-suggest)')
+-- vim.keymap.set('i', '<leader>we', '<Plug>(copilot-next)')
+-- vim.keymap.set('i', '<leader>wq', '<Plug>(copilot-previous)')
+-- vim.keymap.set('i', '<leader>wo', '<Plug>(copilot-accept-word)')
+-- vim.keymap.set('i', '<leader>wl', '<Plug>(copilot-accept-line)')
+
+-- <C-]>                   Dismiss the current suggestion.
+-- <Plug>(copilot-dismiss)
+-- <M-]>                   Cycle to the next suggestion, if one is available.
+-- <Plug>(copilot-next)
+-- <M-[>                   Cycle to the previous suggestion.
+-- <Plug>(copilot-previous)
+-- <M-\>                   Explicitly request a suggestion, even if Copilot
+-- <Plug>(copilot-suggest) is disabled.
+-- <M-Right>               Accept the next word of the current suggestion.
+-- <Plug>(copilot-accept-word)
+-- <M-C-Right>             Accept the next line of the current suggestion.
+-- <Plug>(copilot-accept-line)
 
 vim.g.copilot_filetypes = {
     ["*"] = false,
@@ -646,4 +718,7 @@ vim.g.copilot_filetypes = {
     typescriptreact = true,
     go = true,
     python = true,
+    lua = true,
 }
+-- disable Copilot on startup
+vim.cmd('Copilot disable')
