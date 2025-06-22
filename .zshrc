@@ -24,3 +24,5 @@ alias ssh="ssh -C"
 alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*' --exclude='output' --exclude='*.o' --exclude='tags' --exclude='*.pdf' --exclude='*.xlsx' --exclude='.cache'"
 
 # export TERM=xterm-256color
+
+export PATH=$PATH:~/.local/bin

@@ -11,18 +11,23 @@
         "privacy",
     ],
     "modules-right": [
-        "backlight",
-        "network",
+        "hyprland/language",
+        "tray",
         "wireplumber",
+        "network",
         "bluetooth",
         "temperature",
         "cpu",
         "memory",
         "systemd-failed-units",
-        "custom/notification",
-        "tray",
         "battery",
+        "custom/notification",
     ],
+    "hyprland/language": {
+        "format": "{}",
+        "format-ru": "RU",
+        "format-en": "US",
+    },
     "tray": {
         "icon-size": 18,
         "spacing": 10
@@ -138,13 +143,6 @@
         "actions": {
             "on-click-right": "mode",
         }
-    },
-    "backlight": {
-        "device": "intel_backlight",
-        "format": "{icon} {percent}%",
-        "format-icons": ["", "", "", "", "", "", "", "", ""],
-        "on-scroll-up": "brightnessctl set 1%+",
-        "on-scroll-down": "brightnessctl set 1%-"
     },
     "battery": {
         //"bat": "BAT2",

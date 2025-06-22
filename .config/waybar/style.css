@@ -2,18 +2,18 @@
 * {
     border: none;
     border-radius: 10px;
-    font-family: FiraCode Nerd Font;
+    font-family: JetBrainsMono Nerd Font;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 13px;
     min-height: 1px;
     margin: 0px;
-    padding: 0.5px;
+    padding: 1px;
 }
 
 /* Module Styles */
 .module {
-    padding: 0px 10px;
-    margin: 1px 1px;
+    padding: 0px 12px;
+    margin: 0px 2px;
 }
 
 /* Special Case: Left Margin for First Module in Left Section */
@@ -110,6 +110,7 @@ window#waybar.empty {
 }
 
 /* Specific Module Styles */
+#language,
 #backlight,
 #cpu,
 #idle_inhibitor,
