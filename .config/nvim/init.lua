@@ -101,7 +101,6 @@ vim.keymap.set("v", "<leader>s", [[:s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><L
 -- switch or delete buffers
 -- vim.keymap.set("n", "<C-n>", vim.cmd.bn)
 -- vim.keymap.set("n", "<C-p>", vim.cmd.bp)
-vim.keymap.set("n", "<leader>q", vim.cmd.bd)
 
 -- move lines up and down
 vim.keymap.set("n", "<A-j>", ":m .+1<CR>==")
