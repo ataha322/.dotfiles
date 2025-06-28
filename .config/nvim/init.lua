@@ -282,7 +282,7 @@ require("lazy").setup({
 -- SECTION - Treesitter -----------------------------------------------------------
 require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
-    ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp",
+    ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp", "javascript", "typescript",
         "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml"},
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
@@ -290,14 +290,14 @@ require 'nvim-treesitter.configs'.setup {
 
     -- Automatically install missing parsers when entering buffer
     -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-    auto_install = false,
+    auto_install = true,
 
     highlight = {
         enable = true,
 
         -- Disable slow treesitter highlight for large files
         disable = function(lang, buf)
-            local max_filesize = 500 * 1024
+            local max_filesize = 1024 * 1024
             local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
             if ok and stats and stats.size > max_filesize then
                 return true
@@ -355,6 +355,7 @@ telescope.setup({
         },
         file_ignore_patterns = {
             "node_modules",
+            "venv"
         },
     },
     pickers = {
@@ -408,12 +409,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
         local client = vim.lsp.get_client_by_id(ev.data.client_id)
         if client and client:supports_method('textDocument/completion') then
             vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-            vim.keymap.set({'i'}, '<C-n>', function()
-                local visible = vim.fn.pumvisible()
-                if visible == 0 then  -- if not visible
-                    return '<C-x><C-o>'
-                end
-            end, { buffer = ev.buf, expr = true })
+            -- vim.keymap.set({'i'}, '<C-n>', function()
+            --     local visible = vim.fn.pumvisible()
+            --     if visible == 0 then  -- if not visible
+            --         return '<C-x><C-o>'
+            --     end
+            -- end, { buffer = ev.buf, expr = true })
         end
     end,
 })
@@ -525,13 +526,9 @@ chat.setup {
 
     system_prompt = 'COPILOT_INSTRUCTIONS', -- System prompt to use (can be specified manually in prompt via /).
 
-    model = 'claude-3.5-sonnet', -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
+    model = 'gpt-4.1', -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
     agent = 'copilot', -- Default agent to use, see ':CopilotChatAgents' for available agents (can be specified manually in prompt via @).
-    context = nil, -- Default context or array of contexts to use (can be specified manually in prompt via #).
-    sticky = nil, -- Default sticky prompt or array of sticky prompts to use at start of every new chat.
 
-    temperature = 0.1, -- GPT result temperature
-    headless = false, -- Do not write to chat buffer and use history (useful for using custom processing)
     stream = nil, -- Function called when receiving stream updates (returned string is appended to the chat buffer)
     callback = nil, -- Function called when full response is received (retuned string is stored to history)
     remember_as_sticky = true, -- Remember model/agent/context as sticky prompts when asking questions
@@ -547,7 +544,6 @@ chat.setup {
         row = nil, -- row position of the window, default is centered
         col = nil, -- column position of the window, default is centered
         title = 'Copilot Chat', -- title of chat window
-        footer = nil, -- footer of chat window
         zindex = 1, -- determines if window is on top or below other floating windows
     },
 
@@ -558,24 +554,9 @@ chat.setup {
     auto_follow_cursor = false, -- Auto-follow cursor in chat
     auto_insert_mode = false, -- Automatically enter insert mode when opening window and on new prompt
     insert_at_end = false, -- Move cursor to end of buffer when inserting text
-    clear_chat_on_new_prompt = false, -- Clears chat on every new prompt
 
     -- Static config starts here (can be configured only via setup function)
-
-    debug = false, -- Enable debug logging (same as 'log_level = 'debug')
-    log_level = 'info', -- Log level to use, 'trace', 'debug', 'info', 'warn', 'error', 'fatal'
-    proxy = nil, -- [protocol://]host[:port] Use this proxy
-    allow_insecure = false, -- Allow insecure server connections
-
     chat_autocomplete = true, -- Enable chat autocompletion (when disabled, requires manual `mappings.complete` trigger)
-
-    log_path = vim.fn.stdpath('state') .. '/CopilotChat.log', -- Default path to log file
-    history_path = vim.fn.stdpath('data') .. '/copilotchat_history', -- Default path to stored history
-
-    question_header = '# User ', -- Header to use for user questions
-    answer_header = '# Copilot ', -- Header to use for AI answers
-    error_header = '# Error ', -- Header to use for errors
-    separator = '───', -- Separator to use in chat
 
     -- default prompts
     -- see config/prompts.lua for implementation
@@ -606,7 +587,6 @@ chat.setup {
         },
     },
 
-    -- default mappings
     -- see config/mappings.lua for implementation
     mappings = {
         complete = {

@@ -12,16 +12,12 @@
 * Or try codecompanion.
 * When will tpope release official support?
 
-3. Make neovim+kitty work on macos.
-
-4. Do I want to swap fn and control keys on macos? +
-
-5. Figure out the problem with alt key on macos.
+3. Figure out the problem with alt key on macos.
 * Nvim seems to treat `command` like `alt`, but this is conflicting with system shortcuts.
 
-6. Buffer switches `[b` and `]b` don't work in some buffers like terminal or netrw.
+4. Buffer switches `[b` and `]b` don't work in some buffers like terminal or netrw.
 I think this is because they're unlisted.
 
-7. Lsp servers arent' attached if file is opened directly - example `nvim main.go`
+5. Lsp servers arent' attached if file is opened directly - example `nvim main.go`
 
-8. make command key into alt (maybe exclusively for kitty?)
+6. Show inline linter errors on hover
