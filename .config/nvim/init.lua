@@ -6,7 +6,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
     if vim.v.shell_error ~= 0 then
         vim.api.nvim_echo({
             { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-            { out, "WarningMsg" },
+            { out,                            "WarningMsg" },
             { "\nPress any key to exit..." },
         }, true, {})
         vim.fn.getchar()
@@ -18,7 +18,6 @@ vim.opt.rtp:prepend(lazypath)
 
 -- SECTION - CONFIG OPTIONS -----------------------------
 vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
 
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -36,7 +35,7 @@ vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 
-vim.opt.clipboard = {'unnamedplus', 'unnamedplus'}
+vim.opt.clipboard = 'unnamedplus'
 vim.opt.swapfile = false
 
 vim.g.netrw_banner = false
@@ -56,14 +55,26 @@ vim.opt.mouse = ''
 vim.opt.undofile = false
 vim.opt.cursorline = true
 
-vim.opt.completeopt:append({'noselect', 'fuzzy', 'popup', 'menuone'})
+vim.opt.winborder = 'rounded'
+
+vim.opt.completeopt:append({ 'noselect', 'fuzzy', 'popup', 'menuone' })
 -----------------------------------------------------------------------
 
 -- SECTION - COLORSCHEME ----------------------------------------------
 vim.cmd.colorscheme("default")
-vim.api.nvim_set_hl(0, "Normal", { bg = "none"})
--- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none"})
+-- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg"})
 -- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
+--
+-- - `CopilotChatHeader` - Header highlight in chat buffer
+-- - `CopilotChatSeparator` - Separator highlight in chat buffer
+-- - `CopilotChatStatus` - Status and spinner in chat buffer
+-- - `CopilotChatHelp` - Help messages in chat buffer (help, references)
+-- - `CopilotChatSelection` - Selection highlight in source buffer
+-- - `CopilotChatKeyword` - Keyword highlight in chat buffer (e.g. prompts, contexts)
+-- - `CopilotChatInput` - Input highlight in chat buffer (for contexts)
+
+vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
 
 -- torte
 -- koehler
@@ -99,14 +110,19 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 vim.keymap.set("v", "<leader>s", [[:s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
 -- switch or delete buffers
--- vim.keymap.set("n", "<C-n>", vim.cmd.bn)
--- vim.keymap.set("n", "<C-p>", vim.cmd.bp)
+vim.keymap.set("n", "<leader>q", vim.cmd.bd)
+
 
 -- move lines up and down
 vim.keymap.set("n", "<A-j>", ":m .+1<CR>==")
 vim.keymap.set("n", "<A-k>", ":m .-2<CR>==")
 vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv")
+-- macos cmd key version instead of alt
+-- vim.keymap.set("n", "<D-j>", ":m .+1<CR>==")
+-- vim.keymap.set("n", "<D-k>", ":m .-2<CR>==")
+-- vim.keymap.set("v", "<D-j>", ":m '>+1<CR>gv=gv")
+-- vim.keymap.set("v", "<D-k>", ":m '<-2<CR>gv=gv")
 
 -- highlight all occurrences of the word under cursor
 vim.keymap.set("n", "<leader>h", function()
@@ -126,6 +142,39 @@ end)
 vim.keymap.set("n", "<leader>gs", function()
     vim.cmd.cd("..")
     vim.cmd.pwd()
+end)
+
+-- diagnostics
+
+local diagnostic_config = {
+    -- virtual_lines = { current_line = true },
+    virtual_text = { current_line = true },
+    -- jump = {
+    --     float = true
+    -- },
+    update_in_insert = false,
+}
+
+vim.diagnostic.config(diagnostic_config)
+
+vim.keymap.set('n', '<leader>k', function()
+    diagnostic_config.virtual_lines = { current_line = true }
+    diagnostic_config.virtual_text = false
+    vim.diagnostic.config(diagnostic_config)
+
+    vim.api.nvim_create_autocmd('CursorMoved', {
+        group = vim.api.nvim_create_augroup('line-diagnostics', { clear = true }),
+        callback = function()
+            diagnostic_config.virtual_lines = false
+            diagnostic_config.virtual_text = { current_line = true }
+            vim.diagnostic.config(diagnostic_config)
+            return true
+        end,
+    })
+end)
+
+vim.keymap.set("n", "grD", function()
+    vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end)
 
 -- run python on buffer
@@ -163,10 +212,10 @@ vim.api.nvim_create_user_command("LL", function()
     end
 end, {})
 
--- Make help buffers listed and fullscreen
 vim.api.nvim_create_autocmd("BufWinEnter", {
     pattern = "*.txt",
     callback = function()
+        -- Make help buffers listed and fullscreen
         if vim.bo.filetype == "help" then
             vim.bo.buflisted = true
             vim.cmd("only")
@@ -182,15 +231,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Save and restore window view when switching buffers
-vim.api.nvim_create_autocmd({'BufLeave', 'BufWinLeave'}, {
+vim.api.nvim_create_autocmd({ 'BufLeave' }, {
     callback = function(args)
-        if vim.bo[args.buf].buftype == '' then  -- Only for normal buffers
+        if vim.bo[args.buf].buftype == '' or vim.api.nvim_buf_get_name(args.buf):match('copilot%-chat') then
             vim.b[args.buf].view = vim.fn.winsaveview()
         end
     end
 })
-
-vim.api.nvim_create_autocmd({'BufEnter', 'BufWinEnter'}, {
+vim.api.nvim_create_autocmd({ 'BufEnter' }, {
     callback = function(args)
         if vim.b[args.buf].view ~= nil then
             vim.fn.winrestview(vim.b[args.buf].view)
@@ -206,6 +254,15 @@ vim.api.nvim_create_autocmd('TermOpen', {
         vim.opt_local.relativenumber = false
     end,
 })
+
+vim.api.nvim_create_autocmd({ 'InsertEnter', 'InsertLeave' }, {
+    callback = function()
+        if vim.bo.buftype == "" then
+            vim.opt_local.relativenumber = not vim.opt_local.relativenumber:get()
+        end
+    end,
+})
+
 
 local terminal_bufnr = nil
 local work_bufnr = nil
@@ -252,23 +309,24 @@ require("lazy").setup({
             dependencies = { 'nvim-lua/plenary.nvim' },
             lazy = false,
         },
-        {'mason-org/mason.nvim', opts = {}, lazy = false},
-        {'nvim-telescope/telescope-ui-select.nvim', event="VeryLazy"},
-        {'tpope/vim-surround', event = "VeryLazy"},
-        {'tpope/vim-commentary', event = "VeryLazy"},
-        {'tpope/vim-fugitive', event = "VeryLazy"},
+        { 'mason-org/mason.nvim',                    opts = {},         lazy = false },
+        { 'nvim-telescope/telescope-ui-select.nvim', event = "VeryLazy" },
+        { 'tpope/vim-surround',                      event = "VeryLazy" },
+        { 'tpope/vim-commentary',                    event = "VeryLazy" },
+        { 'tpope/vim-fugitive',                      event = "VeryLazy" },
+        { 'zbirenbaum/copilot.lua',                  event = "VeryLazy" },
 
         {
             "CopilotC-Nvim/CopilotChat.nvim",
             event = "VeryLazy",
             dependencies = {
-                { "github/copilot.vim" }, -- or zbirenbaum/copilot.lua
+                { "zbirenbaum/copilot.lua" },                   -- or github/copilot.vim
                 { "nvim-lua/plenary.nvim", branch = "master" }, -- for curl, log and async functions
             },
-            build = "make tiktoken", -- Only on MacOS or Linux
-            -- opts = {
-            --     -- See Configuration section for options
-            -- },
+            build = "make tiktoken",                            -- Only on MacOS or Linux
+            opts = {
+                -- See Configuration section for options
+            },
             -- See Commands section for default commands if you want to lazy load on them
         },
     },
@@ -282,14 +340,14 @@ require("lazy").setup({
 require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
     ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp", "javascript", "typescript",
-        "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml"},
+        "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml", "latex" },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
 
     -- Automatically install missing parsers when entering buffer
     -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-    auto_install = true,
+    auto_install = false,
 
     highlight = {
         enable = true,
@@ -362,7 +420,7 @@ telescope.setup({
     },
     extensions = {
         ["ui-select"] = {
-            themes.get_dropdown { }
+            themes.get_dropdown {}
         }
     }
 })
@@ -418,35 +476,30 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
-vim.diagnostic.config({
-    -- virtual_lines = { current_line = true },
-    virtual_text = { current_line = true },
-})
-
 -- Servers:
 
 vim.lsp.config.clangd = {
-    cmd = {'clangd', '--clang-tidy', '--background-index'},
-    root_markers = {'compile_commands.json', 'compile_flags.txt'},
-    filetypes = {'c', 'cpp'},
+    cmd = { 'clangd', '--clang-tidy', '--background-index' },
+    root_markers = { 'compile_commands.json', 'compile_flags.txt' },
+    filetypes = { 'c', 'cpp' },
 }
 
 vim.lsp.config.luals = {
-    cmd = {'lua-language-server'},
-    root_markers = {'.luarc.json', '.luarc.jsonc'},
-    filetypes = {'lua'},
+    cmd = { 'lua-language-server' },
+    root_markers = { '.luarc.json', '.luarc.jsonc' },
+    filetypes = { 'lua' },
 }
 
 vim.lsp.config.gopls = {
-    cmd = {'gopls'},
-    root_markers = {'go.mod', 'go.sum'},
-    filetypes = {'go', 'gomod', 'gowork', 'gotmpl', 'gosum'},
+    cmd = { 'gopls' },
+    root_markers = { 'go.mod', 'go.sum' },
+    filetypes = { 'go', 'gomod', 'gowork', 'gotmpl', 'gosum' },
 }
 
 vim.lsp.config.tsserver = {
-    cmd = {'typescript-language-server', '--stdio'},
-    root_markers = {'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json'},
-    filetypes = {'javascript', 'typescript', 'javascriptreact', 'typescriptreact'},
+    cmd = { 'typescript-language-server', '--stdio' },
+    root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json' },
+    filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
     settings = {
         configuration = {
             preferGoToSourceDefinition = true,
@@ -455,9 +508,9 @@ vim.lsp.config.tsserver = {
 }
 
 vim.lsp.config.eslint = {
-    cmd = {'vscode-eslint-language-server', '--stdio'},
-    root_markers = {'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json'},
-    filetypes = {'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'javascript.jsx', 'typescript.jsx'},
+    cmd = { 'vscode-eslint-language-server', '--stdio' },
+    root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json' },
+    filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'javascript.jsx', 'typescript.jsx' },
     settings = {
         useESLintClass = true,
         nodePath = "",
@@ -497,62 +550,61 @@ vim.lsp.config.pyright = {
             },
         },
         python = {
-            pythonPath = {"venv/bin/python", ".venv/bin/python", "/opt/homebrew/bin/python3", "/usr/bin/python3"},
-            venvPath = {"venv", ".venv"},
+            pythonPath = { "venv/bin/python", ".venv/bin/python", "/opt/homebrew/bin/python3", "/usr/bin/python3" },
+            venvPath = { "venv", ".venv" },
         },
     },
 }
 
-vim.lsp.enable({'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright'})
+vim.lsp.enable({ 'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright' })
 
 -- grn in Normal mode maps to vim.lsp.buf.rename()
 -- gra in Normal and Visual mode maps to vim.lsp.buf.code_action()
 -- CTRL-S in Insert and Select mode maps to vim.lsp.buf.signature_help()
 -- gO in Normal mode maps to vim.lsp.buf.document_symbol()
-vim.keymap.set("n", "grD", function()
-    vim.diagnostic.enable(not vim.diagnostic.is_enabled())
-end)
-vim.keymap.set("n", "grf", vim.lsp.buf.format)
-vim.keymap.set("v", "grf", vim.lsp.buf.format)
+vim.keymap.set({ 'n', 'v' }, "grf", vim.lsp.buf.format)
 -----------------------------------------------------------------------------------------
 
 
 -- SECTION - AI Code Completion and Agents---------------------------------------
 local chat = require("CopilotChat")
 chat.setup {
-
     -- Shared config starts here (can be passed to functions at runtime and configured via setup function)
 
     system_prompt = 'COPILOT_INSTRUCTIONS', -- System prompt to use (can be specified manually in prompt via /).
 
-    model = 'gpt-4.1', -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
-    agent = 'copilot', -- Default agent to use, see ':CopilotChatAgents' for available agents (can be specified manually in prompt via @).
+    model = 'gpt-4o',                       -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
+    agent = 'copilot',                      -- Default agent to use, see ':CopilotChatAgents' for available agents (can be specified manually in prompt via @).
+    context = nil,                          -- Default context or array of contexts to use (can be specified manually in prompt via #).
+    sticky = nil,                           -- Default sticky prompt or array of sticky prompts to use at start of every new chat.
 
-    stream = nil, -- Function called when receiving stream updates (returned string is appended to the chat buffer)
-    callback = nil, -- Function called when full response is received (retuned string is stored to history)
-    remember_as_sticky = true, -- Remember model/agent/context as sticky prompts when asking questions
+    temperature = 0.1,                      -- GPT result temperature
+    headless = false,                       -- Do not write to chat buffer and use history (useful for using custom processing)
+    stream = nil,                           -- Function called when receiving stream updates (returned string is appended to the chat buffer)
+    callback = nil,                         -- Function called when full response is received (retuned string is stored to history)
+    remember_as_sticky = true,              -- Remember model/agent/context as sticky prompts when asking questions
 
     -- default window options
     window = {
-        layout = 'vertical', -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
-        width = 0.35, -- fractional width of parent, or absolute width in columns when > 1
-        height = 0.5, -- fractional height of parent, or absolute height in rows when > 1
+        layout = 'float',       -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
+        width = 0.9,            -- fractional width of parent, or absolute width in columns when > 1
+        height = 0.8,           -- fractional height of parent, or absolute height in rows when > 1
         -- Options below only apply to floating windows
-        relative = 'editor', -- 'editor', 'win', 'cursor', 'mouse'
-        border = 'single', -- 'none', single', 'double', 'rounded', 'solid', 'shadow'
-        row = nil, -- row position of the window, default is centered
-        col = nil, -- column position of the window, default is centered
+        relative = 'editor',    -- 'editor', 'win', 'cursor', 'mouse'
+        border = 'rounded',      -- 'none', single', 'double', 'rounded', 'solid', 'shadow'
+        row = nil,              -- row position of the window, default is centered
+        col = nil,              -- column position of the window, default is centered
         title = 'Copilot Chat', -- title of chat window
-        zindex = 1, -- determines if window is on top or below other floating windows
+        zindex = 1,             -- determines if window is on top or below other floating windows
     },
 
-    show_help = true, -- Shows help message as virtual lines when waiting for user input
-    highlight_selection = true, -- Highlight selection
-    highlight_headers = true, -- Highlight headers in chat, disable if using markdown renderers (like render-markdown.nvim)
+    show_help = true,               -- Shows help message as virtual lines when waiting for user input
+    highlight_selection = true,     -- Highlight selection
+    highlight_headers = true,       -- Highlight headers in chat, disable if using markdown renderers (like render-markdown.nvim)
     references_display = 'virtual', -- 'virtual', 'write', Display references in chat as virtual text or write to buffer
-    auto_follow_cursor = false, -- Auto-follow cursor in chat
-    auto_insert_mode = false, -- Automatically enter insert mode when opening window and on new prompt
-    insert_at_end = false, -- Move cursor to end of buffer when inserting text
+    auto_follow_cursor = false,     -- Auto-follow cursor in chat
+    auto_insert_mode = false,       -- Automatically enter insert mode when opening window and on new prompt
+    insert_at_end = false,          -- Move cursor to end of buffer when inserting text
 
     -- Static config starts here (can be configured only via setup function)
     chat_autocomplete = true, -- Enable chat autocompletion (when disabled, requires manual `mappings.complete` trigger)
@@ -670,40 +722,86 @@ end, { desc = 'AI Question' })
 
 -- Copilot.vim
 
-vim.g.copilot_no_tab_map = true
-vim.g.copilot_settings = { selectedCompletionModel = 'gpt-4o-copilot' }
-vim.keymap.set('i', '<C-f>', 'copilot#Accept("")', {
-    expr = true,
-    replace_keycodes = false
-})
-vim.keymap.set('i', '<C-\\>', '<Plug>(copilot-suggest)')
--- vim.keymap.set('i', '<leader>we', '<Plug>(copilot-next)')
--- vim.keymap.set('i', '<leader>wq', '<Plug>(copilot-previous)')
--- vim.keymap.set('i', '<leader>wo', '<Plug>(copilot-accept-word)')
--- vim.keymap.set('i', '<leader>wl', '<Plug>(copilot-accept-line)')
+-- vim.g.copilot_no_tab_map = true
+-- vim.g.copilot_settings = { selectedCompletionModel = 'gpt-4o-copilot' }
+-- vim.keymap.set('i', '<C-f>', 'copilot#Accept("")', {
+--     expr = true,
+--     replace_keycodes = false
+-- })
+-- vim.keymap.set('i', '<C-\\>', '<Plug>(copilot-suggest)')
+-- -- vim.keymap.set('i', '<C-S-N>', '<Plug>(copilot-next)')
+-- -- vim.keymap.set('i', '<C-S-P>', '<Plug>(copilot-previous)')
+-- -- vim.keymap.set('i', '<leader>wo', '<Plug>(copilot-accept-word)')
+-- -- vim.keymap.set('i', '<leader>wl', '<Plug>(copilot-accept-line)')
 
--- <C-]>                   Dismiss the current suggestion.
--- <Plug>(copilot-dismiss)
--- <M-]>                   Cycle to the next suggestion, if one is available.
--- <Plug>(copilot-next)
--- <M-[>                   Cycle to the previous suggestion.
--- <Plug>(copilot-previous)
--- <M-\>                   Explicitly request a suggestion, even if Copilot
--- <Plug>(copilot-suggest) is disabled.
--- <M-Right>               Accept the next word of the current suggestion.
--- <Plug>(copilot-accept-word)
--- <M-C-Right>             Accept the next line of the current suggestion.
--- <Plug>(copilot-accept-line)
+-- -- <C-]>                   Dismiss the current suggestion.
+-- -- <Plug>(copilot-dismiss)
+-- -- <M-]>                   Cycle to the next suggestion, if one is available.
+-- -- <Plug>(copilot-next)
+-- -- <M-[>                   Cycle to the previous suggestion.
+-- -- <Plug>(copilot-previous)
+-- -- <M-\>                   Explicitly request a suggestion, even if Copilot
+-- -- <Plug>(copilot-suggest) is disabled.
+-- -- <M-Right>               Accept the next word of the current suggestion.
+-- -- <Plug>(copilot-accept-word)
+-- -- <M-C-Right>             Accept the next line of the current suggestion.
+-- -- <Plug>(copilot-accept-line)
 
-vim.g.copilot_filetypes = {
-    ["*"] = false,
-    javascript = true,
-    typescript = true,
-    javascriptreact = true,
-    typescriptreact = true,
-    go = true,
-    python = true,
-    lua = true,
-}
+-- vim.g.copilot_filetypes = {
+--     ["*"] = false,
+--     javascript = true,
+--     typescript = true,
+--     javascriptreact = true,
+--     typescriptreact = true,
+--     go = true,
+--     python = true,
+--     lua = true,
+-- }
 -- disable Copilot on startup
-vim.cmd('Copilot disable')
+-- vim.cmd('Copilot disable')
+--
+
+-- Copilot.lua
+require('copilot').setup({
+    panel = {
+        enabled = true,
+        auto_refresh = false,
+        keymap = {
+            jump_prev = "[[",
+            jump_next = "]]",
+            accept = "<CR>",
+            refresh = "gr",
+            open = "<M-CR>"
+        },
+        layout = {
+            position = "bottom", -- | top | left | right | horizontal | vertical
+            ratio = 0.4
+        },
+    },
+    suggestion = {
+        enabled = true,
+        auto_trigger = true,
+        hide_during_completion = true,
+        debounce = 200,
+        trigger_on_accept = true,
+        keymap = {
+            accept = "<C-f>",
+            accept_word = "<C-w>",
+            accept_line = "<C-j>",
+            next = "<D-]>",
+            prev = "<D-[>",
+            dismiss = "<D-s>",
+        },
+    },
+    filetypes = {
+        ["*"] = false,
+        javascript = true,
+        typescript = true,
+        javascriptreact = true,
+        typescriptreact = true,
+        go = true,
+        python = true,
+        lua = true,
+        ruby = true,
+    },
+})
