@@ -22,7 +22,7 @@ vim.g.mapleader = " "
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 8
-vim.opt.signcolumn = "number"
+vim.opt.signcolumn = "yes"
 -- vim.opt.colorcolumn = "120"
 
 vim.opt.splitright = true
@@ -63,18 +63,8 @@ vim.opt.completeopt:append({ 'noselect', 'fuzzy', 'popup', 'menuone' })
 -- SECTION - COLORSCHEME ----------------------------------------------
 vim.cmd.colorscheme("default")
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg"})
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
 -- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
---
--- - `CopilotChatHeader` - Header highlight in chat buffer
--- - `CopilotChatSeparator` - Separator highlight in chat buffer
--- - `CopilotChatStatus` - Status and spinner in chat buffer
--- - `CopilotChatHelp` - Help messages in chat buffer (help, references)
--- - `CopilotChatSelection` - Selection highlight in source buffer
--- - `CopilotChatKeyword` - Keyword highlight in chat buffer (e.g. prompts, contexts)
--- - `CopilotChatInput` - Input highlight in chat buffer (for contexts)
-
-vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
 
 -- torte
 -- koehler
@@ -315,6 +305,7 @@ require("lazy").setup({
         { 'tpope/vim-commentary',                    event = "VeryLazy" },
         { 'tpope/vim-fugitive',                      event = "VeryLazy" },
         { 'zbirenbaum/copilot.lua',                  event = "VeryLazy" },
+        { 'lewis6991/gitsigns.nvim',                 event = "VeryLazy" },
 
         {
             "CopilotC-Nvim/CopilotChat.nvim",
@@ -375,6 +366,35 @@ require 'nvim-treesitter.configs'.setup {
 -----------------------------------------------------------------------------------
 
 
+-- SECTION - Git -----------------------------------------------------------
+local gitsigns = require('gitsigns')
+gitsigns.setup({
+    current_line_blame = true,
+    current_line_blame_opts = { delay = 500 },
+})
+
+vim.keymap.set('n', '[c', function()
+    if vim.wo.diff then
+        vim.cmd.normal({ '[c', bang = true })
+    else
+        gitsigns.nav_hunk('prev', { target = 'all' })
+    end
+end)
+vim.keymap.set('n', ']c', function()
+    if vim.wo.diff then
+        vim.cmd.normal({ ']c', bang = true })
+    else
+        gitsigns.nav_hunk('next', { target = 'all' })
+    end
+end)
+
+vim.keymap.set('n', 'dO', gitsigns.stage_hunk)
+vim.keymap.set('n', 'dp', gitsigns.reset_hunk)
+vim.keymap.set('n', 'do', gitsigns.preview_hunk)
+
+---------------------------------------------------------------------------
+
+
 -- SECTION - Telescope ------------------------------------------------------------
 local telescope = require('telescope')
 local builtin = require('telescope.builtin')
@@ -394,7 +414,7 @@ telescope.setup({
                 ['<C-x>'] = actions.delete_buffer
             }
         },
-        border = true,
+        border = false,
         layout_strategy = 'vertical',
         layout_config = {
             horizontal = {
@@ -591,7 +611,7 @@ chat.setup {
         height = 0.8,           -- fractional height of parent, or absolute height in rows when > 1
         -- Options below only apply to floating windows
         relative = 'editor',    -- 'editor', 'win', 'cursor', 'mouse'
-        border = 'rounded',      -- 'none', single', 'double', 'rounded', 'solid', 'shadow'
+        border = 'rounded',     -- 'none', single', 'double', 'rounded', 'solid', 'shadow'
         row = nil,              -- row position of the window, default is centered
         col = nil,              -- column position of the window, default is centered
         title = 'Copilot Chat', -- title of chat window
