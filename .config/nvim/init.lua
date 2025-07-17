@@ -79,10 +79,16 @@ vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
 
 
 -- SECTION - KEY MAPPINGS -----------------------------------------
-vim.keymap.set("n", "<leader>ee", vim.cmd.Ex)
 -- vim.keymap.set("n", "<leader>ee", function()
---     vim.cmd("19Lex")
+--     if vim.bo.filetype ~= 'netrw' then
+--         vim.cmd.Ex()
+--     else
+--         vim.cmd.bp()
+--     end
 -- end)
+vim.keymap.set("n", "<leader>ee", function()
+    vim.cmd("23Lex")
+end)
 
 -- keep cursor in place
 vim.keymap.set("n", "J", "mzJ`z")
