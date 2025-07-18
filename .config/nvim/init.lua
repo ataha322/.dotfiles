@@ -308,7 +308,7 @@ require("lazy").setup({
         { 'tpope/vim-fugitive',                      event = "VeryLazy" },
         { 'zbirenbaum/copilot.lua',                  event = "VeryLazy" },
         { 'lewis6991/gitsigns.nvim',                 event = "VeryLazy" },
-
+        { 'stevearc/conform.nvim',                   opts = {},         event = "VeryLazy" },
         {
             "CopilotC-Nvim/CopilotChat.nvim",
             event = "VeryLazy",
@@ -584,10 +584,39 @@ vim.lsp.enable({ 'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright' })
 -- gra in Normal and Visual mode maps to vim.lsp.buf.code_action()
 -- CTRL-S in Insert and Select mode maps to vim.lsp.buf.signature_help()
 -- gO in Normal mode maps to vim.lsp.buf.document_symbol()
-vim.keymap.set({ 'n', 'v' }, "grf", vim.lsp.buf.format)
 -----------------------------------------------------------------------------------------
-
-
+-- SECTION - Formatter ---------------------------------------------------------
+local conform = require('conform')
+local prettier_args = {
+    "--tab-width", "4",
+    "--config-precedence",
+    "prefer-file",
+}
+conform.setup({
+    formatters_by_ft = {
+        typescript = { "prettier" },
+        typescriptreact = { "prettier" },
+        javascript = { "prettier" },
+        javascriptreact = { "prettier" },
+        html = { "prettier" },
+        css = { "prettier" },
+    },
+    formatters = {
+        prettier = {
+            prepend_args = function()
+                return prettier_args
+            end,
+        },
+    },
+    default_format_opts = {
+        lsp_format = "fallback",
+    },
+})
+vim.keymap.set({ 'n', 'v' }, "grf", function()
+    conform.format()
+end)
+vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+--------------------------------------------------------------------------
 -- SECTION - AI Code Completion and Agents---------------------------------------
 local chat = require("CopilotChat")
 chat.setup {
@@ -741,47 +770,6 @@ vim.keymap.set({ 'n', 'v' }, '<leader>aq', function()
         end
     end)
 end, { desc = 'AI Question' })
-
--- Copilot.vim
-
--- vim.g.copilot_no_tab_map = true
--- vim.g.copilot_settings = { selectedCompletionModel = 'gpt-4o-copilot' }
--- vim.keymap.set('i', '<C-f>', 'copilot#Accept("")', {
---     expr = true,
---     replace_keycodes = false
--- })
--- vim.keymap.set('i', '<C-\\>', '<Plug>(copilot-suggest)')
--- -- vim.keymap.set('i', '<C-S-N>', '<Plug>(copilot-next)')
--- -- vim.keymap.set('i', '<C-S-P>', '<Plug>(copilot-previous)')
--- -- vim.keymap.set('i', '<leader>wo', '<Plug>(copilot-accept-word)')
--- -- vim.keymap.set('i', '<leader>wl', '<Plug>(copilot-accept-line)')
-
--- -- <C-]>                   Dismiss the current suggestion.
--- -- <Plug>(copilot-dismiss)
--- -- <M-]>                   Cycle to the next suggestion, if one is available.
--- -- <Plug>(copilot-next)
--- -- <M-[>                   Cycle to the previous suggestion.
--- -- <Plug>(copilot-previous)
--- -- <M-\>                   Explicitly request a suggestion, even if Copilot
--- -- <Plug>(copilot-suggest) is disabled.
--- -- <M-Right>               Accept the next word of the current suggestion.
--- -- <Plug>(copilot-accept-word)
--- -- <M-C-Right>             Accept the next line of the current suggestion.
--- -- <Plug>(copilot-accept-line)
-
--- vim.g.copilot_filetypes = {
---     ["*"] = false,
---     javascript = true,
---     typescript = true,
---     javascriptreact = true,
---     typescriptreact = true,
---     go = true,
---     python = true,
---     lua = true,
--- }
--- disable Copilot on startup
--- vim.cmd('Copilot disable')
---
 
 -- Copilot.lua
 require('copilot').setup({
