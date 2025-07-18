@@ -144,29 +144,17 @@ end)
 
 local diagnostic_config = {
     -- virtual_lines = { current_line = true },
-    virtual_text = { current_line = true },
-    -- jump = {
-    --     float = true
-    -- },
-    update_in_insert = false,
+    -- virtual_text = { current_line = true },
+    jump = {
+        float = true
+    },
+    update_in_insert = true,
 }
 
 vim.diagnostic.config(diagnostic_config)
 
-vim.keymap.set('n', '<leader>k', function()
-    diagnostic_config.virtual_lines = { current_line = true }
-    diagnostic_config.virtual_text = false
-    vim.diagnostic.config(diagnostic_config)
-
-    vim.api.nvim_create_autocmd('CursorMoved', {
-        group = vim.api.nvim_create_augroup('line-diagnostics', { clear = true }),
-        callback = function()
-            diagnostic_config.virtual_lines = false
-            diagnostic_config.virtual_text = { current_line = true }
-            vim.diagnostic.config(diagnostic_config)
-            return true
-        end,
-    })
+vim.keymap.set('n', 'grk', function()
+    vim.diagnostic.open_float()
 end)
 
 vim.keymap.set("n", "grD", function()
@@ -251,10 +239,18 @@ vim.api.nvim_create_autocmd('TermOpen', {
     end,
 })
 
-vim.api.nvim_create_autocmd({ 'InsertEnter', 'InsertLeave' }, {
+vim.api.nvim_create_autocmd({ 'InsertEnter' }, {
     callback = function()
         if vim.bo.buftype == "" then
-            vim.opt_local.relativenumber = not vim.opt_local.relativenumber:get()
+            vim.opt_local.relativenumber = false
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
+    callback = function()
+        if vim.bo.buftype == "" then
+            vim.opt_local.relativenumber = true
         end
     end,
 })
