@@ -1,5 +1,4 @@
 return function(INPUT_LINE_NUMBER, CURSOR_LINE, CURSOR_COLUMN)
-    print('kitty sent:', INPUT_LINE_NUMBER, CURSOR_LINE, CURSOR_COLUMN)
     vim.opt.encoding='utf-8'
     vim.opt.clipboard = 'unnamedplus'
     vim.opt.compatible = false
@@ -12,6 +11,7 @@ return function(INPUT_LINE_NUMBER, CURSOR_LINE, CURSOR_COLUMN)
     vim.o.cmdheight = 0
     vim.opt.showcmd = false
     vim.opt.scrollback = INPUT_LINE_NUMBER + CURSOR_LINE
+    vim.opt.cursorline = true
     local term_buf = vim.api.nvim_create_buf(true, false);
     local term_io = vim.api.nvim_open_term(term_buf, {})
     vim.api.nvim_buf_set_keymap(term_buf, 'n', 'q', '<Cmd>q<CR>', { })
