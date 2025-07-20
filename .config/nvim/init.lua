@@ -310,18 +310,17 @@ require("lazy").setup({
         { 'lewis6991/gitsigns.nvim',                 event = "VeryLazy" },
         { 'stevearc/conform.nvim',                   opts = {},         event = "VeryLazy" },
         {
-            "CopilotC-Nvim/CopilotChat.nvim",
-            event = "VeryLazy",
+            "olimorris/codecompanion.nvim",
+            opts = {},
             dependencies = {
-                { "zbirenbaum/copilot.lua" },                   -- or github/copilot.vim
-                { "nvim-lua/plenary.nvim", branch = "master" }, -- for curl, log and async functions
+                "nvim-lua/plenary.nvim",
+                "nvim-treesitter/nvim-treesitter",
             },
-            build = "make tiktoken",                            -- Only on MacOS or Linux
-            opts = {
-                -- See Configuration section for options
-            },
-            -- See Commands section for default commands if you want to lazy load on them
         },
+        -- {
+        --     "MeanderingProgrammer/render-markdown.nvim",
+        --     ft = { "markdown", "codecompanion" }
+        -- },
     },
     install = {},
     checker = { enabled = false },
@@ -417,7 +416,7 @@ telescope.setup({
             }
         },
         border = false,
-        layout_strategy = 'vertical',
+        layout_strategy = 'horizontal',
         layout_config = {
             horizontal = {
                 height = 0.95,
@@ -442,7 +441,9 @@ telescope.setup({
     },
     extensions = {
         ["ui-select"] = {
-            themes.get_dropdown {}
+            themes.get_dropdown({
+                border = false,
+            })
         }
     }
 })
@@ -589,8 +590,7 @@ vim.lsp.enable({ 'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright' })
 local conform = require('conform')
 local prettier_args = {
     "--tab-width", "4",
-    "--config-precedence",
-    "prefer-file",
+    "--config-precedence", "prefer-file",
 }
 conform.setup({
     formatters_by_ft = {
@@ -617,182 +617,64 @@ vim.keymap.set({ 'n', 'v' }, "grf", function()
 end)
 vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 --------------------------------------------------------------------------
+
 -- SECTION - AI Code Completion and Agents---------------------------------------
-local chat = require("CopilotChat")
-chat.setup {
-    -- Shared config starts here (can be passed to functions at runtime and configured via setup function)
-
-    system_prompt = 'COPILOT_INSTRUCTIONS', -- System prompt to use (can be specified manually in prompt via /).
-
-    model = 'gpt-4o',                       -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
-    agent = 'copilot',                      -- Default agent to use, see ':CopilotChatAgents' for available agents (can be specified manually in prompt via @).
-    context = nil,                          -- Default context or array of contexts to use (can be specified manually in prompt via #).
-    sticky = nil,                           -- Default sticky prompt or array of sticky prompts to use at start of every new chat.
-
-    temperature = 0.1,                      -- GPT result temperature
-    headless = false,                       -- Do not write to chat buffer and use history (useful for using custom processing)
-    stream = nil,                           -- Function called when receiving stream updates (returned string is appended to the chat buffer)
-    callback = nil,                         -- Function called when full response is received (retuned string is stored to history)
-    remember_as_sticky = true,              -- Remember model/agent/context as sticky prompts when asking questions
-
-    -- default window options
-    window = {
-        layout = 'float',       -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
-        width = 0.9,            -- fractional width of parent, or absolute width in columns when > 1
-        height = 0.8,           -- fractional height of parent, or absolute height in rows when > 1
-        -- Options below only apply to floating windows
-        relative = 'editor',    -- 'editor', 'win', 'cursor', 'mouse'
-        border = 'rounded',     -- 'none', single', 'double', 'rounded', 'solid', 'shadow'
-        row = nil,              -- row position of the window, default is centered
-        col = nil,              -- column position of the window, default is centered
-        title = 'Copilot Chat', -- title of chat window
-        zindex = 1,             -- determines if window is on top or below other floating windows
-    },
-
-    show_help = true,               -- Shows help message as virtual lines when waiting for user input
-    highlight_selection = true,     -- Highlight selection
-    highlight_headers = true,       -- Highlight headers in chat, disable if using markdown renderers (like render-markdown.nvim)
-    references_display = 'virtual', -- 'virtual', 'write', Display references in chat as virtual text or write to buffer
-    auto_follow_cursor = false,     -- Auto-follow cursor in chat
-    auto_insert_mode = false,       -- Automatically enter insert mode when opening window and on new prompt
-    insert_at_end = false,          -- Move cursor to end of buffer when inserting text
-
-    -- Static config starts here (can be configured only via setup function)
-    chat_autocomplete = true, -- Enable chat autocompletion (when disabled, requires manual `mappings.complete` trigger)
-
-    -- default prompts
-    -- see config/prompts.lua for implementation
-    prompts = {
-        Explain = {
-            prompt = 'Write an explanation for the selected code as paragraphs of text.',
-            system_prompt = 'COPILOT_EXPLAIN',
+local cc = require('codecompanion')
+cc.setup({
+    display = {
+        chat = {
+            window = {
+                layout = "float", -- float|vertical|horizontal|buffer
+                position = nil, -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
+                border = "rounded",
+                height = 0.85,
+                width = 0.85,
+                relative = "editor",
+                full_height = true, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
+                sticky = false, -- when set to true and `layout` is not `"buffer"`, the chat buffer will remain opened when switching tabs
+                opts = {
+                    breakindent = true,
+                    cursorcolumn = false,
+                    cursorline = false,
+                    foldcolumn = "0",
+                    linebreak = true,
+                    list = false,
+                    numberwidth = 1,
+                    signcolumn = "no",
+                    spell = false,
+                    wrap = true,
+                },
+            },
+            show_settings = true, -- Show LLM settings at the top of the chat buffer?
+            opts = {
+                completion_provider = "default", -- blink|cmp|coc|default
+            }
         },
-        Review = {
-            prompt = 'Review the selected code.',
-            system_prompt = 'COPILOT_REVIEW',
+        action_palette = {
+            provider = "default", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
+            opts = {
+                show_default_actions = true, -- Show the default actions in the action palette?
+                show_default_prompt_library = true, -- Show the default prompt library in the action palette?
+            },
         },
-        Fix = {
-            prompt = 'There is a problem in this code. Identify the issues and rewrite the code with fixes. Explain what was wrong and how your changes address the problems.',
-        },
-        Optimize = {
-            prompt = 'Optimize the selected code to improve performance and readability. Explain your optimization strategy and the benefits of your changes.',
-        },
-        Docs = {
-            prompt = 'Please add documentation comments to the selected code.',
-        },
-        Tests = {
-            prompt = 'Please generate tests for my code.',
-        },
-        Commit = {
-            prompt = 'Write commit message for the change with commitizen convention. Keep the title under 50 characters and wrap message at 72 characters. Format as a gitcommit code block.',
-            context = 'git:staged',
+        strategies = {
+
         },
     },
-
-    -- see config/mappings.lua for implementation
-    mappings = {
-        complete = {
-            insert = '<Tab>',
-        },
-        close = {
-            normal = 'q',
-            insert = '<C-c>',
-        },
-        reset = {
-            normal = '<C-l>',
-            insert = '<C-l>',
-        },
-        submit_prompt = {
-            normal = '<CR>',
-            insert = '<C-s>',
-        },
-        toggle_sticky = {
-            normal = 'grr',
-        },
-        clear_stickies = {
-            normal = 'grx',
-        },
-        accept_diff = {
-            normal = '<C-y>',
-            insert = '<C-y>',
-        },
-        jump_to_diff = {
-            normal = 'gj',
-        },
-        quickfix_answers = {
-            normal = 'gqa',
-        },
-        quickfix_diffs = {
-            normal = 'gqd',
-        },
-        yank_diff = {
-            normal = 'gy',
-            register = '"', -- Default register to use for yanking
-        },
-        show_diff = {
-            normal = 'gd',
-            full_diff = false, -- Show full diff instead of unified diff when showing diff window
-        },
-        show_info = {
-            normal = 'gi',
-        },
-        show_context = {
-            normal = 'gc',
-        },
-        show_help = {
-            normal = 'gh',
-        },
-    },
-}
-
-vim.api.nvim_create_autocmd('BufEnter', {
-    pattern = 'copilot-*',
-    callback = function()
-        -- Set buffer-local options
-        vim.opt_local.relativenumber = false
-        vim.opt_local.number = false
-        vim.opt_local.conceallevel = 0
-    end
 })
-
-vim.keymap.set({ 'n' }, '<leader>aa', chat.toggle, { desc = 'AI Toggle' })
-vim.keymap.set({ 'v' }, '<leader>aa', chat.open, { desc = 'AI Open' })
-vim.keymap.set({ 'n' }, '<leader>ax', chat.reset, { desc = 'AI Reset' })
-vim.keymap.set({ 'n' }, '<leader>as', chat.stop, { desc = 'AI Stop' })
-vim.keymap.set({ 'n' }, '<leader>am', chat.select_model, { desc = 'AI Models' })
-vim.keymap.set({ 'n', 'v' }, '<leader>ap', chat.select_prompt, { desc = 'AI Prompts' })
-vim.keymap.set({ 'n', 'v' }, '<leader>aq', function()
-    vim.ui.input({
-        prompt = 'AI Question> ',
-    }, function(input)
-        if input ~= '' then
-            chat.ask(input)
-        end
-    end)
-end, { desc = 'AI Question' })
+vim.keymap.set({ "n", "v" }, "<leader>ap", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<leader>aa", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
+vim.keymap.set("v", "<leader>aw", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+-- Expand 'cc' into 'CodeCompanion' in the command line
+vim.cmd([[cab cc CodeCompanion]])
 
 -- Copilot.lua
 require('copilot').setup({
-    panel = {
-        enabled = true,
-        auto_refresh = false,
-        keymap = {
-            jump_prev = "[[",
-            jump_next = "]]",
-            accept = "<CR>",
-            refresh = "gr",
-            open = "<M-CR>"
-        },
-        layout = {
-            position = "bottom", -- | top | left | right | horizontal | vertical
-            ratio = 0.4
-        },
-    },
     suggestion = {
         enabled = true,
-        auto_trigger = true,
+        auto_trigger = false,
         hide_during_completion = true,
-        debounce = 200,
+        debounce = 75,
         trigger_on_accept = true,
         keymap = {
             accept = "<C-f>",
