@@ -120,6 +120,30 @@ vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv")
 -- vim.keymap.set("v", "<D-j>", ":m '>+1<CR>gv=gv")
 -- vim.keymap.set("v", "<D-k>", ":m '<-2<CR>gv=gv")
 
+-- rename file in the current buffer
+vim.keymap.set('n', '<leader>gr', function()
+    local old_name = vim.fn.expand('%')
+
+    if old_name == '' then
+        vim.notify('No file to rename (buffer has no name)', vim.log.levels.WARN)
+        return
+    end
+
+    local buftype = vim.bo.buftype
+    if buftype ~= '' then
+        vim.notify('Cannot rename: buffer is not a regular file (buftype: ' .. buftype .. ')', vim.log.levels.WARN)
+        return
+    end
+
+    local new_name = vim.fn.input('New file name: ', old_name, 'file')
+    if new_name ~= '' and new_name ~= old_name then
+        vim.cmd('saveas ' .. new_name)
+        vim.fn.delete(old_name)
+    else
+        vim.notify('Rename cancelled', vim.log.levels.WARN)
+    end
+end, { desc = 'Rename current file' })
+
 -- highlight all occurrences of the word under cursor
 vim.keymap.set("n", "<leader>h", function()
     local word = vim.fn.expand("<cword>")
@@ -230,15 +254,6 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
     end
 })
 
--- Nvim terminal in a separate unlisted buffer
-vim.api.nvim_create_autocmd('TermOpen', {
-    group = vim.api.nvim_create_augroup('custom-term-open', { clear = true }),
-    callback = function()
-        vim.opt_local.number = false
-        vim.opt_local.relativenumber = false
-    end,
-})
-
 vim.api.nvim_create_autocmd({ 'InsertEnter' }, {
     callback = function()
         if vim.bo.buftype == "" then
@@ -255,6 +270,14 @@ vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
     end,
 })
 
+-- Nvim terminal in a separate unlisted buffer
+vim.api.nvim_create_autocmd('TermOpen', {
+    group = vim.api.nvim_create_augroup('custom-term-open', { clear = true }),
+    callback = function()
+        vim.opt_local.number = false
+        vim.opt_local.relativenumber = false
+    end,
+})
 
 local terminal_bufnr = nil
 local work_bufnr = nil
@@ -278,10 +301,17 @@ local function toggle_terminal()
         vim.cmd.buffer(terminal_bufnr)
         vim.api.nvim_command('terminal')
         vim.bo[terminal_bufnr].buflisted = false -- set to unlisted because `terminal` sets to listed
+
+        -- python venv activation
+        local venv_path = vim.fn.getcwd() .. '/venv/bin/activate'
+        if vim.fn.filereadable(venv_path) == 1 then
+            vim.api.nvim_chan_send(vim.bo[terminal_bufnr].channel, 'source ' .. venv_path .. '\n')
+        end
     end
 end
 
 vim.keymap.set('n', '<leader>tt', toggle_terminal, { noremap = true, silent = true })
+vim.keymap.set({'n', 't'}, '<C-\\>', toggle_terminal, { noremap = true, silent = true })
 vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>')
 ---------------------------------------------------------------------------------------
 
@@ -333,7 +363,7 @@ require("lazy").setup({
 require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
     ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp", "javascript", "typescript",
-        "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml", "latex" },
+        "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml", "latex", "rust" },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -417,7 +447,7 @@ telescope.setup({
             }
         },
         border = false,
-        layout_strategy = 'vertical',
+        layout_strategy = 'horizontal',
         layout_config = {
             horizontal = {
                 height = 0.95,
@@ -434,15 +464,34 @@ telescope.setup({
         },
         file_ignore_patterns = {
             "node_modules",
-            "venv"
+            "venv",
+            ".git",
         },
     },
     pickers = {
+        find_files = {
+            hidden = true,
+            -- find_command = { 'rg', '--files', '--hidden', '--glob', '!.git/*' },
+        },
+        live_grep = {
+            -- additional_args = function(opts)
+            --     return { "--hidden", "--glob", "!.git/*" }
+            -- end,
+            -- theme = "dropdown",
+        },
+        grep_string = {
+            -- additional_args = function(opts)
+            --     return { "--hidden", "--glob", "!.git/*" }
+            -- end,
+            -- theme = "dropdown",
+        },
 
     },
     extensions = {
         ["ui-select"] = {
-            themes.get_dropdown {}
+            themes.get_dropdown({
+                border = false,
+            })
         }
     }
 })
@@ -502,13 +551,29 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 vim.lsp.config.clangd = {
     cmd = { 'clangd', '--clang-tidy', '--background-index' },
-    root_markers = { 'compile_commands.json', 'compile_flags.txt' },
+    root_markers = { 'compile_commands.json', 'compile_flags.txt', '.git' },
     filetypes = { 'c', 'cpp' },
+}
+
+vim.lsp.config.rust = {
+    cmd = { "rust-analyzer" },
+    root_markers = { "Cargo.toml", ".git" },
+    settings = {
+        ["rust-analyzer"] = {
+            check = { command = "clippy" },
+            -- check = { command = "clippy -- -W clippy::pedantic" },
+            completion = {
+                -- fullFunctionSignatures = { enable = true },
+            },
+        },
+
+    },
+    filetypes = { "rust" }
 }
 
 vim.lsp.config.luals = {
     cmd = { 'lua-language-server' },
-    root_markers = { '.luarc.json', '.luarc.jsonc' },
+    root_markers = { '.luarc.json', '.luarc.jsonc', '.git'},
     filetypes = { 'lua' },
 }
 
@@ -523,8 +588,15 @@ vim.lsp.config.tsserver = {
     root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json' },
     filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
     settings = {
-        configuration = {
-            preferGoToSourceDefinition = true,
+        javascript = {
+            configuration = {
+                preferGoToSourceDefinition = true,
+            },
+        },
+        typescript = {
+            configuration = {
+                preferGoToSourceDefinition = true,
+            },
         },
     },
 }
@@ -534,15 +606,17 @@ vim.lsp.config.eslint = {
     root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', 'package-lock.json' },
     filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'javascript.jsx', 'typescript.jsx' },
     settings = {
-        useESLintClass = true,
-        nodePath = "",
-        codeActionsOnSave = {
-            enable = false,
-            mode = "all",
-        },
-        experimental = {
-            useFlatConfig = false,
-        },
+        eslint = {
+            useESLintClass = true,
+            nodePath = "",
+            codeActionsOnSave = {
+                enable = false,
+                mode = "all",
+            },
+            experimental = {
+                useFlatConfig = false,
+            },
+        }
     }
 }
 
@@ -578,19 +652,22 @@ vim.lsp.config.pyright = {
     },
 }
 
-vim.lsp.enable({ 'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright' })
+vim.lsp.enable({ 'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright', 'rust'})
 
 -- grn in Normal mode maps to vim.lsp.buf.rename()
 -- gra in Normal and Visual mode maps to vim.lsp.buf.code_action()
 -- CTRL-S in Insert and Select mode maps to vim.lsp.buf.signature_help()
 -- gO in Normal mode maps to vim.lsp.buf.document_symbol()
+vim.keymap.set('n', "grh", function()
+    vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+end)
 -----------------------------------------------------------------------------------------
 -- SECTION - Formatter ---------------------------------------------------------
 local conform = require('conform')
 local prettier_args = {
     "--tab-width", "4",
-    "--config-precedence",
-    "prefer-file",
+    "--print-width", "120",
+    "--config-precedence", "prefer-file",
 }
 conform.setup({
     formatters_by_ft = {
@@ -792,7 +869,7 @@ require('copilot').setup({
         enabled = true,
         auto_trigger = true,
         hide_during_completion = true,
-        debounce = 200,
+        debounce = 75,
         trigger_on_accept = true,
         keymap = {
             accept = "<C-f>",
