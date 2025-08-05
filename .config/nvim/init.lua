@@ -311,7 +311,7 @@ local function toggle_terminal()
 end
 
 vim.keymap.set('n', '<leader>tt', toggle_terminal, { noremap = true, silent = true })
-vim.keymap.set({'n', 't'}, '<C-\\>', toggle_terminal, { noremap = true, silent = true })
+vim.keymap.set({ 'n', 't' }, '<C-\\>', toggle_terminal, { noremap = true, silent = true })
 vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>')
 ---------------------------------------------------------------------------------------
 
@@ -442,11 +442,8 @@ telescope.setup({
             n = {
                 ['<C-x>'] = actions.delete_buffer
             },
-            i = {
-                ['<C-x>'] = actions.delete_buffer
-            }
         },
-        border = false,
+        border = true,
         layout_strategy = 'horizontal',
         layout_config = {
             horizontal = {
@@ -490,7 +487,7 @@ telescope.setup({
     extensions = {
         ["ui-select"] = {
             themes.get_dropdown({
-                border = false,
+                border = true,
             })
         }
     }
@@ -573,7 +570,7 @@ vim.lsp.config.rust = {
 
 vim.lsp.config.luals = {
     cmd = { 'lua-language-server' },
-    root_markers = { '.luarc.json', '.luarc.jsonc', '.git'},
+    root_markers = { '.luarc.json', '.luarc.jsonc', '.git' },
     filetypes = { 'lua' },
 }
 
@@ -607,15 +604,23 @@ vim.lsp.config.eslint = {
     filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'javascript.jsx', 'typescript.jsx' },
     settings = {
         eslint = {
-            useESLintClass = true,
-            nodePath = "",
+            useESLintClass = false,
+            quiet = false, -- Ignore warnings
+            validate = "on",
+            nodePath = vim.fn.trim(vim.fn.system('nvm which stable')),
             codeActionsOnSave = {
                 enable = false,
                 mode = "all",
             },
+            problems = {
+                shortenToSingleLine = false,
+            },
             experimental = {
                 useFlatConfig = false,
             },
+            packageManager = nil,
+            onIgnoredFiles = "off",
+            workingDirectory = { mode = "location" },
         }
     }
 }
@@ -652,7 +657,7 @@ vim.lsp.config.pyright = {
     },
 }
 
-vim.lsp.enable({ 'luals', 'clangd', 'gopls', 'tsserver', 'eslint', 'pyright', 'rust'})
+vim.lsp.enable({ 'luals', 'clangd', 'gopls', 'tsserver', 'pyright', 'rust' })
 
 -- grn in Normal mode maps to vim.lsp.buf.rename()
 -- gra in Normal and Visual mode maps to vim.lsp.buf.code_action()
