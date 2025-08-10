@@ -460,29 +460,23 @@ telescope.setup({
             }
         },
         file_ignore_patterns = {
-            "node_modules",
-            "venv",
-            ".git",
+            "^node_modules/",
+            "^dist/",
+            "^%.next/",
+            "^%.?venv/",
+            "^%.mypy_cache/",
+            "^%.pytest_cache/",
+            "^__pycache__/",
+            "^%.git/",
+            "^target/",
         },
     },
     pickers = {
         find_files = {
             hidden = true,
-            -- find_command = { 'rg', '--files', '--hidden', '--glob', '!.git/*' },
+            no_ignore = true,
+            follow = true,
         },
-        live_grep = {
-            -- additional_args = function(opts)
-            --     return { "--hidden", "--glob", "!.git/*" }
-            -- end,
-            -- theme = "dropdown",
-        },
-        grep_string = {
-            -- additional_args = function(opts)
-            --     return { "--hidden", "--glob", "!.git/*" }
-            -- end,
-            -- theme = "dropdown",
-        },
-
     },
     extensions = {
         ["ui-select"] = {
