@@ -6,10 +6,6 @@
 # Available commands: https://nikitabobko.github.io/AeroSpace/commands
 after-login-command = []
 
-after-startup-command = [
-    'exec-and-forget borders active_color=0xc0e2e2e3 inactive_color=0xc02c2e34 width=3.0',
-]
-
 # Start AeroSpace at login
 start-at-login = true
 
@@ -20,7 +16,7 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
 # You can set 0 to disable the padding feature
-accordion-padding = 20
+accordion-padding = 10
 
 # Possible values: tiles|accordion
 default-root-container-layout = 'tiles'
@@ -149,16 +145,3 @@ automatically-unhide-macos-hidden-apps = true
     r = ['flatten-workspace-tree', 'mode main'] # reset layout
     f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
     backspace = ['close-all-windows-but-current', 'mode main']
-
-    alt-shift-h = ['join-with left', 'mode main']
-    alt-shift-j = ['join-with down', 'mode main']
-    alt-shift-k = ['join-with up', 'mode main']
-    alt-shift-l = ['join-with right', 'mode main']
-
-# [[on-window-detected]]
-# if.app-id = 'net.kovidgoyal.kitty'
-# run = 'move-node-to-workspace 1'
-
-# [[on-window-detected]]
-# if.app-id = 'com.google.Chrome'
-# run = 'move-node-to-workspace 2'
