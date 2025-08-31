@@ -108,20 +108,23 @@ vim.keymap.set("v", "<leader>s", [[:s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><L
 -- switch or delete buffers
 vim.keymap.set("n", "<leader>q", vim.cmd.bd)
 
-
 -- move lines up and down
-vim.keymap.set("n", "<A-j>", ":m .+1<CR>==")
-vim.keymap.set("n", "<A-k>", ":m .-2<CR>==")
-vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv")
--- macos cmd key version instead of alt
--- vim.keymap.set("n", "<D-j>", ":m .+1<CR>==")
--- vim.keymap.set("n", "<D-k>", ":m .-2<CR>==")
--- vim.keymap.set("v", "<D-j>", ":m '>+1<CR>gv=gv")
--- vim.keymap.set("v", "<D-k>", ":m '<-2<CR>gv=gv")
+if vim.fn.has("mac") == 1 then
+    -- macOS: use Cmd key
+    vim.keymap.set("n", "<D-j>", ":m .+1<CR>==")
+    vim.keymap.set("n", "<D-k>", ":m .-2<CR>==")
+    vim.keymap.set("v", "<D-j>", ":m '>+1<CR>gv=gv")
+    vim.keymap.set("v", "<D-k>", ":m '<-2<CR>gv=gv")
+else
+    -- Linux: use Alt key
+    vim.keymap.set("n", "<A-j>", ":m .+1<CR>==")
+    vim.keymap.set("n", "<A-k>", ":m .-2<CR>==")
+    vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv")
+    vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv")
+end
 
 -- rename file in the current buffer
-vim.keymap.set('n', '<leader>gr', function()
+vim.keymap.set('n', '<leader>rr', function()
     local old_name = vim.fn.expand('%')
 
     if old_name == '' then
@@ -154,28 +157,25 @@ end)
 vim.keymap.set("n", "<leader>nh", vim.cmd.nohlsearch)
 
 -- manipulate CWD
-vim.keymap.set("n", "<leader>gg", vim.cmd.pwd)
-vim.keymap.set("n", "<leader>gw", function()
+vim.keymap.set("n", "<leader>ww", vim.cmd.pwd)
+vim.keymap.set("n", "<leader>wc", function()
     vim.cmd.cd("%:h") -- cd to current working file directory
     vim.cmd.pwd()
 end)
-vim.keymap.set("n", "<leader>gs", function()
+vim.keymap.set("n", "<leader>wb", function()
     vim.cmd.cd("..")
     vim.cmd.pwd()
 end)
 
 -- diagnostics
-
-local diagnostic_config = {
+vim.diagnostic.config({
     -- virtual_lines = { current_line = true },
     -- virtual_text = { current_line = true },
     jump = {
         float = true
     },
     update_in_insert = true,
-}
-
-vim.diagnostic.config(diagnostic_config)
+})
 
 vim.keymap.set('n', 'grk', function()
     vim.diagnostic.open_float()
@@ -310,7 +310,6 @@ local function toggle_terminal()
     end
 end
 
-vim.keymap.set('n', '<leader>tt', toggle_terminal, { noremap = true, silent = true })
 vim.keymap.set({ 'n', 't' }, '<C-\\>', toggle_terminal, { noremap = true, silent = true })
 vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>')
 ---------------------------------------------------------------------------------------
@@ -335,23 +334,8 @@ require("lazy").setup({
         { 'nvim-telescope/telescope-ui-select.nvim', event = "VeryLazy" },
         { 'tpope/vim-surround',                      event = "VeryLazy" },
         { 'tpope/vim-commentary',                    event = "VeryLazy" },
-        { 'tpope/vim-fugitive',                      event = "VeryLazy" },
-        { 'zbirenbaum/copilot.lua',                  event = "VeryLazy" },
         { 'lewis6991/gitsigns.nvim',                 event = "VeryLazy" },
         { 'stevearc/conform.nvim',                   opts = {},         event = "VeryLazy" },
-        {
-            "CopilotC-Nvim/CopilotChat.nvim",
-            event = "VeryLazy",
-            dependencies = {
-                { "zbirenbaum/copilot.lua" },                   -- or github/copilot.vim
-                { "nvim-lua/plenary.nvim", branch = "master" }, -- for curl, log and async functions
-            },
-            build = "make tiktoken",                            -- Only on MacOS or Linux
-            opts = {
-                -- See Configuration section for options
-            },
-            -- See Commands section for default commands if you want to lazy load on them
-        },
     },
     install = {},
     checker = { enabled = false },
@@ -363,7 +347,7 @@ require("lazy").setup({
 require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
     ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp", "javascript", "typescript",
-        "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml", "latex", "rust" },
+        "markdown", "markdown_inline", "diff", "jsonc", "json", "yaml", "toml", "latex", "rust", "sql" },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -403,6 +387,7 @@ local gitsigns = require('gitsigns')
 gitsigns.setup({
     current_line_blame = true,
     current_line_blame_opts = { delay = 500 },
+    gh = true,
 })
 
 vim.keymap.set('n', '[c', function()
@@ -424,6 +409,15 @@ vim.keymap.set('n', 'dO', gitsigns.stage_hunk)
 vim.keymap.set('n', 'dp', gitsigns.reset_hunk)
 vim.keymap.set('n', 'do', gitsigns.preview_hunk)
 
+vim.keymap.set('n', '<leader>gb', function()
+    gitsigns.blame_line({ full = true })
+end)
+vim.keymap.set('n', '<leader>gB', function()
+    gitsigns.blame()
+end)
+vim.keymap.set('n', '<leader>gd', function()
+    gitsigns.diffthis()
+end)
 ---------------------------------------------------------------------------
 
 
@@ -440,6 +434,9 @@ telescope.setup({
         },
         mappings = {
             n = {
+                ['<C-x>'] = actions.delete_buffer
+            },
+            i = {
                 ['<C-x>'] = actions.delete_buffer
             },
         },
@@ -467,15 +464,16 @@ telescope.setup({
             "^%.mypy_cache/",
             "^%.pytest_cache/",
             "^__pycache__/",
+            "^%.ruff_cache/",
             "^%.git/",
             "^target/",
         },
     },
     pickers = {
         find_files = {
-            hidden = true,
-            no_ignore = true,
-            follow = true,
+            -- hidden = true,
+            -- no_ignore = true,
+            -- follow = true,
         },
     },
     extensions = {
@@ -528,18 +526,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
         local client = vim.lsp.get_client_by_id(ev.data.client_id)
         if client and client:supports_method('textDocument/completion') then
             vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-            -- vim.keymap.set({'i'}, '<C-n>', function()
-            --     local visible = vim.fn.pumvisible()
-            --     if visible == 0 then  -- if not visible
-            --         return '<C-x><C-o>'
-            --     end
-            -- end, { buffer = ev.buf, expr = true })
         end
     end,
 })
 
 -- Servers:
-
 vim.lsp.config.clangd = {
     cmd = { 'clangd', '--clang-tidy', '--background-index' },
     root_markers = { 'compile_commands.json', 'compile_flags.txt', '.git' },
@@ -693,201 +684,7 @@ vim.keymap.set({ 'n', 'v' }, "grf", function()
 end)
 vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 --------------------------------------------------------------------------
+---
 -- SECTION - AI Code Completion and Agents---------------------------------------
-local chat = require("CopilotChat")
-chat.setup {
-    -- Shared config starts here (can be passed to functions at runtime and configured via setup function)
-
-    system_prompt = 'COPILOT_INSTRUCTIONS', -- System prompt to use (can be specified manually in prompt via /).
-
-    model = 'gpt-4o',                       -- Default model to use, see ':CopilotChatModels' for available models (can be specified manually in prompt via $).
-    agent = 'copilot',                      -- Default agent to use, see ':CopilotChatAgents' for available agents (can be specified manually in prompt via @).
-    context = nil,                          -- Default context or array of contexts to use (can be specified manually in prompt via #).
-    sticky = nil,                           -- Default sticky prompt or array of sticky prompts to use at start of every new chat.
-
-    temperature = 0.1,                      -- GPT result temperature
-    headless = false,                       -- Do not write to chat buffer and use history (useful for using custom processing)
-    stream = nil,                           -- Function called when receiving stream updates (returned string is appended to the chat buffer)
-    callback = nil,                         -- Function called when full response is received (retuned string is stored to history)
-    remember_as_sticky = true,              -- Remember model/agent/context as sticky prompts when asking questions
-
-    -- default window options
-    window = {
-        layout = 'float',       -- 'vertical', 'horizontal', 'float', 'replace', or a function that returns the layout
-        width = 0.9,            -- fractional width of parent, or absolute width in columns when > 1
-        height = 0.8,           -- fractional height of parent, or absolute height in rows when > 1
-        -- Options below only apply to floating windows
-        relative = 'editor',    -- 'editor', 'win', 'cursor', 'mouse'
-        border = 'rounded',     -- 'none', single', 'double', 'rounded', 'solid', 'shadow'
-        row = nil,              -- row position of the window, default is centered
-        col = nil,              -- column position of the window, default is centered
-        title = 'Copilot Chat', -- title of chat window
-        zindex = 1,             -- determines if window is on top or below other floating windows
-    },
-
-    show_help = true,               -- Shows help message as virtual lines when waiting for user input
-    highlight_selection = true,     -- Highlight selection
-    highlight_headers = true,       -- Highlight headers in chat, disable if using markdown renderers (like render-markdown.nvim)
-    references_display = 'virtual', -- 'virtual', 'write', Display references in chat as virtual text or write to buffer
-    auto_follow_cursor = false,     -- Auto-follow cursor in chat
-    auto_insert_mode = false,       -- Automatically enter insert mode when opening window and on new prompt
-    insert_at_end = false,          -- Move cursor to end of buffer when inserting text
-
-    -- Static config starts here (can be configured only via setup function)
-    chat_autocomplete = true, -- Enable chat autocompletion (when disabled, requires manual `mappings.complete` trigger)
-
-    -- default prompts
-    -- see config/prompts.lua for implementation
-    prompts = {
-        Explain = {
-            prompt = 'Write an explanation for the selected code as paragraphs of text.',
-            system_prompt = 'COPILOT_EXPLAIN',
-        },
-        Review = {
-            prompt = 'Review the selected code.',
-            system_prompt = 'COPILOT_REVIEW',
-        },
-        Fix = {
-            prompt = 'There is a problem in this code. Identify the issues and rewrite the code with fixes. Explain what was wrong and how your changes address the problems.',
-        },
-        Optimize = {
-            prompt = 'Optimize the selected code to improve performance and readability. Explain your optimization strategy and the benefits of your changes.',
-        },
-        Docs = {
-            prompt = 'Please add documentation comments to the selected code.',
-        },
-        Tests = {
-            prompt = 'Please generate tests for my code.',
-        },
-        Commit = {
-            prompt = 'Write commit message for the change with commitizen convention. Keep the title under 50 characters and wrap message at 72 characters. Format as a gitcommit code block.',
-            context = 'git:staged',
-        },
-    },
-
-    -- see config/mappings.lua for implementation
-    mappings = {
-        complete = {
-            insert = '<Tab>',
-        },
-        close = {
-            normal = 'q',
-            insert = '<C-c>',
-        },
-        reset = {
-            normal = '<C-l>',
-            insert = '<C-l>',
-        },
-        submit_prompt = {
-            normal = '<CR>',
-            insert = '<C-s>',
-        },
-        toggle_sticky = {
-            normal = 'grr',
-        },
-        clear_stickies = {
-            normal = 'grx',
-        },
-        accept_diff = {
-            normal = '<C-y>',
-            insert = '<C-y>',
-        },
-        jump_to_diff = {
-            normal = 'gj',
-        },
-        quickfix_answers = {
-            normal = 'gqa',
-        },
-        quickfix_diffs = {
-            normal = 'gqd',
-        },
-        yank_diff = {
-            normal = 'gy',
-            register = '"', -- Default register to use for yanking
-        },
-        show_diff = {
-            normal = 'gd',
-            full_diff = false, -- Show full diff instead of unified diff when showing diff window
-        },
-        show_info = {
-            normal = 'gi',
-        },
-        show_context = {
-            normal = 'gc',
-        },
-        show_help = {
-            normal = 'gh',
-        },
-    },
-}
-
-vim.api.nvim_create_autocmd('BufEnter', {
-    pattern = 'copilot-*',
-    callback = function()
-        -- Set buffer-local options
-        vim.opt_local.relativenumber = false
-        vim.opt_local.number = false
-        vim.opt_local.conceallevel = 0
-    end
-})
-
-vim.keymap.set({ 'n' }, '<leader>aa', chat.toggle, { desc = 'AI Toggle' })
-vim.keymap.set({ 'v' }, '<leader>aa', chat.open, { desc = 'AI Open' })
-vim.keymap.set({ 'n' }, '<leader>ax', chat.reset, { desc = 'AI Reset' })
-vim.keymap.set({ 'n' }, '<leader>as', chat.stop, { desc = 'AI Stop' })
-vim.keymap.set({ 'n' }, '<leader>am', chat.select_model, { desc = 'AI Models' })
-vim.keymap.set({ 'n', 'v' }, '<leader>ap', chat.select_prompt, { desc = 'AI Prompts' })
-vim.keymap.set({ 'n', 'v' }, '<leader>aq', function()
-    vim.ui.input({
-        prompt = 'AI Question> ',
-    }, function(input)
-        if input ~= '' then
-            chat.ask(input)
-        end
-    end)
-end, { desc = 'AI Question' })
-
--- Copilot.lua
-require('copilot').setup({
-    panel = {
-        enabled = true,
-        auto_refresh = false,
-        keymap = {
-            jump_prev = "[[",
-            jump_next = "]]",
-            accept = "<CR>",
-            refresh = "gr",
-            open = "<M-CR>"
-        },
-        layout = {
-            position = "bottom", -- | top | left | right | horizontal | vertical
-            ratio = 0.4
-        },
-    },
-    suggestion = {
-        enabled = true,
-        auto_trigger = true,
-        hide_during_completion = true,
-        debounce = 75,
-        trigger_on_accept = true,
-        keymap = {
-            accept = "<C-f>",
-            accept_word = "<C-w>",
-            accept_line = "<C-j>",
-            next = "<D-]>",
-            prev = "<D-[>",
-            dismiss = "<D-s>",
-        },
-    },
-    filetypes = {
-        ["*"] = false,
-        javascript = true,
-        typescript = true,
-        javascriptreact = true,
-        typescriptreact = true,
-        go = true,
-        python = true,
-        lua = true,
-        ruby = true,
-    },
-})
+--
+-- TODO: Avante
