@@ -360,14 +360,16 @@ require 'nvim-treesitter.configs'.setup {
     highlight = {
         enable = true,
 
+        -- Turning off disabling because nvim 0.11 is running treesitter asynchronously
+        --
         -- Disable slow treesitter highlight for large files
-        disable = function(lang, buf)
-            local max_filesize = 1024 * 1024
-            local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-            if ok and stats and stats.size > max_filesize then
-                return true
-            end
-        end,
+        -- disable = function(lang, buf)
+        --     local max_filesize = 1024 * 1024
+        --     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+        --     if ok and stats and stats.size > max_filesize then
+        --         return true
+        --     end
+        -- end,
 
         -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
         -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
