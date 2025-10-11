@@ -1,3 +1,1 @@
 1. Oil.nvim
-2. Avante.nvim
-3. Nice workflow with opencode.
