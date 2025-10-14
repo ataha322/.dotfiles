@@ -66,27 +66,18 @@ vim.diagnostic.config({
 })
 -----------------------------------------------------------------------
 
--- SECTION - COLORSCHEME ----------------------------------------------
-vim.cmd.colorscheme("slate")
--- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "WinSeparator", { bg = "bg", fg = "#afaf8b" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
-vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
--- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
-
--- rose-pine
--- murphy
--- retrobox
--- default
--- slate
------------------------------------------------------------------------
-
 -- SECTION - Setup lazy.nvim -------------------------------------------------
 require("lazy").setup({
     git = {
         timeout = 3600,
     },
     spec = {
+        {
+            "darianmorat/gruvdark.nvim",
+            lazy = false,
+            priority = 1000,
+            opts = {},
+        },
         {
             "nvim-treesitter/nvim-treesitter",
             branch = 'master',
@@ -322,6 +313,23 @@ require("lazy").setup({
     install = {},
     checker = { enabled = false },
 })
+
+-- SECTION - COLORSCHEME ----------------------------------------------
+vim.cmd.colorscheme("gruvdark")
+-- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "WinSeparator", { bg = "bg", fg = "#afaf8b" })
+-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
+-- vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
+-- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
+
+-- rose-pine
+-- murphy
+-- retrobox
+-- default
+-- slate
+-- gruvdark
+-----------------------------------------------------------------------
+
 -----------------------------------------------------------------------------
 -- SECTION - KEY MAPPINGS -----------------------------------------
 -- vim.keymap.set("n", "<leader>ee", function()
@@ -412,14 +420,6 @@ vim.keymap.set("n", "<leader>wb", function()
     vim.cmd.pwd()
 end)
 
-vim.keymap.set('n', 'grk', function()
-    vim.diagnostic.open_float()
-end)
-
-vim.keymap.set("n", "grD", function()
-    vim.diagnostic.enable(not vim.diagnostic.is_enabled())
-end)
-
 vim.keymap.set('n', '[c', function()
     if vim.wo.diff then
         vim.cmd.normal({ '[c', bang = true })
@@ -439,6 +439,9 @@ vim.keymap.set('n', 'dO', require 'gitsigns'.stage_hunk)
 vim.keymap.set('n', 'dp', require 'gitsigns'.reset_hunk)
 vim.keymap.set('n', 'do', require 'gitsigns'.preview_hunk)
 
+vim.keymap.set('n', '<leader>gc', require('telescope.builtin').git_commits, {})
+vim.keymap.set('n', '<leader>gg', require('telescope.builtin').git_status, {})
+vim.keymap.set('n', '<leader>gl', require('telescope.builtin').git_branches, {})
 vim.keymap.set('n', '<leader>gb', function()
     require 'gitsigns'.blame_line({ full = true })
 end)
@@ -484,9 +487,6 @@ vim.keymap.set('n', '<leader>/', function()
         previewer = false,
     }))
 end)
-vim.keymap.set('n', '<leader>gc', require('telescope.builtin').git_commits, {})
-vim.keymap.set('n', '<leader>gg', require('telescope.builtin').git_status, {})
-vim.keymap.set('n', '<leader>gl', require('telescope.builtin').git_branches, {})
 -- TODO:
 -- builtin.commands({opts})                        *telescope.builtin.commands()*
 -- builtin.quickfix({opts})                        *telescope.builtin.quickfix()*
@@ -503,7 +503,10 @@ vim.keymap.set('n', 'grd', require('telescope.builtin').lsp_definitions)
 vim.keymap.set('n', 'grt', require('telescope.builtin').lsp_type_definitions)
 vim.keymap.set('n', 'grc', require('telescope.builtin').lsp_incoming_calls)
 vim.keymap.set('n', 'grC', require('telescope.builtin').lsp_outgoing_calls)
-
+vim.keymap.set('n', 'grk', vim.diagnostic.open_float)
+vim.keymap.set("n", "grD", function()
+    vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+end)
 vim.keymap.set('n', "grh", function()
     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end)
