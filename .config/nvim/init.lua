@@ -83,7 +83,13 @@ require("lazy").setup({
             branch = 'master',
             lazy = false,
             build = ":TSUpdate",
-            dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
+            dependencies = {
+                {
+                    'nvim-treesitter/nvim-treesitter-textobjects',
+                    branch = 'master',
+                    event = "VeryLazy",
+                }
+            },
             opts = function()
                 require 'nvim-treesitter.configs'.setup {
                     -- A list of parser names, or "all" (the five listed parsers should always be installed)
@@ -222,7 +228,8 @@ require("lazy").setup({
                     extensions = {
                         ["ui-select"] = {
                             require('telescope.themes').get_dropdown({
-                                border = true,
+                                winblend = 7,
+                                previewer = false,
                             })
                         }
                     }
@@ -308,6 +315,60 @@ require("lazy").setup({
                     },
                 }
             end
+        },
+        {
+            "folke/sidekick.nvim",
+            opts = {
+                nes = {
+                    enabled = false,
+                },
+                cli = {
+                    win = {
+                        layout = "float", ---@type "float"|"left"|"bottom"|"top"|"right"
+                        ---@type vim.api.keyset.win_config
+                        float = {
+                            width = 0.9,
+                            height = 0.9,
+                        },
+                    }
+                },
+                copilot = {
+                    status = {
+                        enabled = false,
+                    },
+                },
+            },
+            keys = {
+                {
+                    "<c-.>",
+                    function() require("sidekick.cli").toggle({ name = "claude", focus = true }) end,
+                    desc = "Sidekick Toggle Claude",
+                    mode = { "n", "t", "i", "x" },
+                },
+                {
+                    "<leader>at",
+                    function() require("sidekick.cli").send({ msg = "{this}" }) end,
+                    mode = { "x", "n" },
+                    desc = "Send This",
+                },
+                {
+                    "<leader>af",
+                    function() require("sidekick.cli").send({ msg = "{file}" }) end,
+                    desc = "Send File",
+                },
+                {
+                    "<leader>av",
+                    function() require("sidekick.cli").send({ msg = "{selection}" }) end,
+                    mode = { "x" },
+                    desc = "Send Visual Selection",
+                },
+                {
+                    "<leader>ap",
+                    function() require("sidekick.cli").prompt() end,
+                    mode = { "n", "x" },
+                    desc = "Sidekick Select Prompt",
+                },
+            },
         },
     },
     install = {},
@@ -469,11 +530,16 @@ vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, {})
 vim.keymap.set('n', '<leader>fw', require('telescope.builtin').grep_string, {})
 vim.keymap.set('n', '<leader>fg', require('telescope.builtin').live_grep, {})
 vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, {})
-vim.keymap.set('n', '<leader>fp', require('telescope.builtin').pickers, {})
 vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, {})
 vim.keymap.set('n', '<leader>fc', require('telescope.builtin').colorscheme, {})
 vim.keymap.set('n', '<leader><leader>', function()
-    require('telescope.builtin').buffers({ sort_mru = true })
+    require('telescope.builtin').buffers(
+        require('telescope.themes').get_dropdown({
+            sort_mru = true,
+            winblend = 7,
+            previewer = false,
+        })
+    )
 end)
 vim.keymap.set('v', '<leader>fv', function()
     require('telescope.builtin').grep_string({ search = getVisualSelection() })
