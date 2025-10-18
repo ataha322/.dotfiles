@@ -175,7 +175,6 @@ require("lazy").setup({
             },
             lazy = false,
             opts = function()
-                require 'telescope'.load_extension("ui-select")
                 return {
                     defaults = {
                         preview = {
@@ -218,13 +217,13 @@ require("lazy").setup({
                         --     "^target/",
                         -- },
                     },
-                    pickers = {
-                        -- find_files = {
-                        --     hidden = true,
-                        --     no_ignore = true,
-                        --     follow = true,
-                        -- },
-                    },
+                    -- pickers = {
+                    --     find_files = {
+                    --         hidden = true,
+                    --         no_ignore = true,
+                    --         follow = true,
+                    --     },
+                    -- },
                     extensions = {
                         ["ui-select"] = {
                             require('telescope.themes').get_dropdown({
@@ -318,6 +317,7 @@ require("lazy").setup({
         },
         {
             "folke/sidekick.nvim",
+            event = "VeryLazy",
             opts = {
                 nes = {
                     enabled = false,
@@ -327,8 +327,15 @@ require("lazy").setup({
                         layout = "float", ---@type "float"|"left"|"bottom"|"top"|"right"
                         ---@type vim.api.keyset.win_config
                         float = {
-                            width = 0.9,
-                            height = 0.9,
+                            width = 0.75,
+                            height = 0.75,
+                        },
+                        keys = {
+                            hide_n = false,
+                            hide_ctrl_q = false,
+                            hide_ctrl_dot = false,
+                            prompt = false,
+                            stopinsert = false,
                         },
                     }
                 },
@@ -374,6 +381,8 @@ require("lazy").setup({
     install = {},
     checker = { enabled = false },
 })
+
+require 'telescope'.load_extension("ui-select")
 
 -- SECTION - COLORSCHEME ----------------------------------------------
 vim.cmd.colorscheme("gruvdark")
@@ -502,7 +511,14 @@ vim.keymap.set('n', 'do', require 'gitsigns'.preview_hunk)
 
 vim.keymap.set('n', '<leader>gc', require('telescope.builtin').git_commits, {})
 vim.keymap.set('n', '<leader>gg', require('telescope.builtin').git_status, {})
-vim.keymap.set('n', '<leader>gl', require('telescope.builtin').git_branches, {})
+vim.keymap.set('n', '<leader>gl', function()
+    require('telescope.builtin').git_branches(
+        require('telescope.themes').get_dropdown({
+            winblend = 7,
+            previewer = false,
+        })
+    )
+end)
 vim.keymap.set('n', '<leader>gb', function()
     require 'gitsigns'.blame_line({ full = true })
 end)
@@ -531,7 +547,14 @@ vim.keymap.set('n', '<leader>fw', require('telescope.builtin').grep_string, {})
 vim.keymap.set('n', '<leader>fg', require('telescope.builtin').live_grep, {})
 vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, {})
 vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, {})
-vim.keymap.set('n', '<leader>fc', require('telescope.builtin').colorscheme, {})
+vim.keymap.set('n', '<leader>fc', function()
+    require('telescope.builtin').colorscheme(
+        require('telescope.themes').get_dropdown({
+            winblend = 7,
+            previewer = false,
+        })
+    )
+end, {})
 vim.keymap.set('n', '<leader><leader>', function()
     require('telescope.builtin').buffers(
         require('telescope.themes').get_dropdown({
@@ -698,4 +721,4 @@ local function toggle_terminal()
 end
 
 vim.keymap.set({ 'n', 'i', 't' }, '<C-\\>', toggle_terminal, { noremap = true, silent = true })
-vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>')
+vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
