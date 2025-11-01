@@ -73,12 +73,6 @@ require("lazy").setup({
     },
     spec = {
         {
-            "darianmorat/gruvdark.nvim",
-            lazy = false,
-            priority = 1000,
-            opts = {},
-        },
-        {
             "nvim-treesitter/nvim-treesitter",
             branch = 'master',
             lazy = false,
@@ -236,26 +230,42 @@ require("lazy").setup({
                 }
             end
         },
-        -- {
-        --     'milanglacier/minuet-ai.nvim',
-        --     config = function()
-        --         require('minuet').setup {
-        --             provider = 'openai_fim_compatible',
-        --             n_completions = 1, -- recommend for local model for resource saving
-        --             context_window = 1024,
-        --             provider_options = {
-        --                 openai_fim_compatible = {
-        --                     -- For Windows users, TERM may not be present in environment variables.
-        --                     -- Consider using APPDATA instead.
-        --                     api_key = 'CEREBRAS_API_KEY',
-        --                     name = 'Cerebras',
-        --                     end_point = 'https://api.cerebras.ai/v1/completions',
-        --                     model = 'qwen-3-32b',
-        --                 },
-        --             },
-        --         }
-        --     end,
-        -- },
+        {
+            'milanglacier/minuet-ai.nvim',
+            config = function()
+                require('minuet').setup {
+                    provider = 'openai_fim_compatible',
+                    n_completions = 1,
+                    context_window = 512,
+                    provider_options = {
+                        openai_fim_compatible = {
+                            api_key = 'TERM',
+                            name = 'Llama.cpp',
+                            end_point = 'http://localhost:8012/v1/completions',
+                            model = 'PLACEHOLDER',
+                            optional = {
+                                max_tokens = 56,
+                                top_p = 0.9,
+                            },
+                            template = {
+                                prompt = function(context_before_cursor, context_after_cursor, _)
+                                    return '<|fim_prefix|>'
+                                        .. context_before_cursor
+                                        .. '<|fim_suffix|>'
+                                        .. context_after_cursor
+                                        .. '<|fim_middle|>'
+                                end,
+                                suffix = false,
+                            },
+                        },
+                    },
+                    virtualtext = {
+                        auto_trigger_ft = { 'python', 'lua', 'rust', 'typescript', 'javascript', 'javascriptreact', 'typescriptreact' },
+                    },
+                }
+            end,
+            event = "VeryLazy",
+        },
         {
             "mason-org/mason-lspconfig.nvim",
             opts = {
@@ -321,6 +331,11 @@ require("lazy").setup({
             opts = {
                 nes = {
                     enabled = false,
+                    ---@class sidekick.diff.Opts
+                    ---@field inline? "words"|"chars"|false Enable inline diffs
+                    diff = {
+                        inline = "words",
+                    }
                 },
                 cli = {
                     win = {
@@ -338,11 +353,6 @@ require("lazy").setup({
                             stopinsert = false,
                         },
                     }
-                },
-                copilot = {
-                    status = {
-                        enabled = false,
-                    },
                 },
             },
             keys = {
@@ -385,11 +395,11 @@ require("lazy").setup({
 require 'telescope'.load_extension("ui-select")
 
 -- SECTION - COLORSCHEME ----------------------------------------------
-vim.cmd.colorscheme("gruvdark")
+vim.cmd.colorscheme("slate")
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
--- vim.api.nvim_set_hl(0, "WinSeparator", { bg = "bg", fg = "#afaf8b" })
--- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
--- vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
+vim.api.nvim_set_hl(0, "WinSeparator", { bg = "bg", fg = "#afaf8b" })
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
+vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
 -- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
 
 -- rose-pine
@@ -570,6 +580,19 @@ end)
 vim.keymap.set('n', '<leader>fo', function()
     require('telescope.builtin').oldfiles({ only_cwd = true })
 end)
+vim.keymap.set('n', '<leader>fq', require('telescope.builtin').quickfix)
+vim.keymap.set('n', '<leader>fi', require('telescope.builtin').quickfixhistory)
+vim.keymap.set('n', '<leader>fm', require('telescope.builtin').marks)
+vim.keymap.set('n', '<leader>fd', function()
+    require('telescope.builtin').diagnostics({
+        bufnr = 0,
+    })
+end)
+vim.keymap.set('n', '<leader>fD', function()
+    require('telescope.builtin').diagnostics({
+        bufnr = nil,
+    })
+end)
 vim.keymap.set('n', '<leader>/', function()
     require('telescope.builtin').current_buffer_fuzzy_find(require 'telescope.themes'.get_dropdown({
         winblend = 7,
@@ -578,13 +601,10 @@ vim.keymap.set('n', '<leader>/', function()
 end)
 -- TODO:
 -- builtin.commands({opts})                        *telescope.builtin.commands()*
--- builtin.quickfix({opts})                        *telescope.builtin.quickfix()*
 -- builtin.oldfiles({opts})                        *telescope.builtin.oldfiles()*
 -- builtin.command_history({opts})          *telescope.builtin.command_history()*
 -- builtin.search_history({opts})            *telescope.builtin.search_history()*
 -- builtin.vim_options({opts})                  *telescope.builtin.vim_options()*
--- builtin.marks({opts})                              *telescope.builtin.marks()*
--- builtin.diagnostics({opts})                  *telescope.builtin.diagnostics()*
 
 vim.keymap.set('n', 'grr', require('telescope.builtin').lsp_references)
 vim.keymap.set('n', 'gri', require('telescope.builtin').lsp_implementations)
@@ -603,6 +623,21 @@ end)
 -- formatting
 vim.keymap.set({ 'n', 'v' }, "grf", function()
     require('conform').format()
+end)
+
+-- AI completion
+vim.keymap.set('i', "<c-f>", function()
+    if require 'minuet.virtualtext'.action.is_visible() then
+        require 'minuet.virtualtext'.action.accept()
+    else
+        require 'minuet.virtualtext'.action.next()
+    end
+end)
+vim.keymap.set('i', "<c-l>", function()
+    require('minuet.virtualtext').action.accept_line()
+end)
+vim.keymap.set('i', "<c-k>", function()
+    require('minuet.virtualtext').action.dismiss()
 end)
 
 -- Map 'W' same as 'w'
