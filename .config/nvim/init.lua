@@ -198,18 +198,18 @@ require("lazy").setup({
                                 width = 0.95
                             }
                         },
-                        -- file_ignore_patterns = {
-                        --     "^node_modules/",
-                        --     "^dist/",
-                        --     "^%.next/",
-                        --     "^%.?venv/",
-                        --     "^%.mypy_cache/",
-                        --     "^%.pytest_cache/",
-                        --     "^__pycache__/",
-                        --     "^%.ruff_cache/",
-                        --     "^%.git/",
-                        --     "^target/",
-                        -- },
+                        file_ignore_patterns = {
+                            "^node_modules/",
+                            "^dist/",
+                            "^%.next/",
+                            "^%.?venv/",
+                            "^%.mypy_cache/",
+                            "^%.pytest_cache/",
+                            "^__pycache__/",
+                            "^%.ruff_cache/",
+                            "^%.git/",
+                            "^target/",
+                        },
                     },
                     -- pickers = {
                     --     find_files = {
@@ -231,41 +231,60 @@ require("lazy").setup({
             end
         },
         {
-            'milanglacier/minuet-ai.nvim',
+            "supermaven-inc/supermaven-nvim",
             config = function()
-                require('minuet').setup {
-                    provider = 'openai_fim_compatible',
-                    n_completions = 1,
-                    context_window = 512,
-                    provider_options = {
-                        openai_fim_compatible = {
-                            api_key = 'TERM',
-                            name = 'Llama.cpp',
-                            end_point = 'http://localhost:8012/v1/completions',
-                            model = 'PLACEHOLDER',
-                            optional = {
-                                max_tokens = 56,
-                                top_p = 0.9,
-                            },
-                            template = {
-                                prompt = function(context_before_cursor, context_after_cursor, _)
-                                    return '<|fim_prefix|>'
-                                        .. context_before_cursor
-                                        .. '<|fim_suffix|>'
-                                        .. context_after_cursor
-                                        .. '<|fim_middle|>'
-                                end,
-                                suffix = false,
-                            },
-                        },
+                require("supermaven-nvim").setup({
+                    keymaps = {
+                        accept_suggestion = "<C-f>",
+                        clear_suggestion = "<C-k>",
+                        accept_word = "<C-l>",
                     },
-                    virtualtext = {
-                        auto_trigger_ft = { 'python', 'lua', 'rust', 'typescript', 'javascript', 'javascriptreact', 'typescriptreact' },
-                    },
-                }
+                })
             end,
-            event = "VeryLazy",
         },
+        -- {
+        --     'milanglacier/minuet-ai.nvim',
+        --     config = function()
+        --         require('minuet').setup {
+        --             provider = 'openai_fim_compatible',
+        --             n_completions = 1,
+        --             context_window = 2048,
+        --             provider_options = {
+        --                 -- openai_fim_compatible = {
+        --                 --     api_key = 'TERM',
+        --                 --     name = 'Llama.cpp',
+        --                 --     end_point = 'http://localhost:8012/v1/completions',
+        --                 --     model = 'PLACEHOLDER',
+        --                 --     optional = {
+        --                 --         max_tokens = 56,
+        --                 --         top_p = 0.9,
+        --                 --     },
+        --                 --     template = {
+        --                 --         prompt = function(context_before_cursor, context_after_cursor, _)
+        --                 --             return '<|fim_prefix|>'
+        --                 --                 .. context_before_cursor
+        --                 --                 .. '<|fim_suffix|>'
+        --                 --                 .. context_after_cursor
+        --                 --                 .. '<|fim_middle|>'
+        --                 --         end,
+        --                 --         suffix = false,
+        --                 --     },
+        --                 -- },
+        --                 openai_fim_compatible = {
+        --                     model = "mercury-coder",
+        --                     end_point = "https://api.inceptionlabs.ai/v1/fim/completions",
+        --                     api_key = "INCEPTION_API_KEY",
+        --                     stream = true,
+        --                 },
+        --             },
+        --             virtualtext = {
+        --                 auto_trigger_ft = { 'python', 'lua', 'rust', 'typescript', 'javascript', 'javascriptreact', 'typescriptreact' },
+        --                 -- auto_trigger_ft = {},
+        --             },
+        --         }
+        --     end,
+        --     event = "VeryLazy",
+        -- },
         {
             "mason-org/mason-lspconfig.nvim",
             opts = {
@@ -409,6 +428,26 @@ vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
 -- slate
 -- gruvdark
 -----------------------------------------------------------------------
+
+-- SECTION - Custom LSP settings (on top of nvim-lspconfig)
+vim.lsp.config("basedpyright",
+    {
+        settings = {
+            basedpyright = {
+                analysis = {
+                    diagnosticSeverityOverrides = {
+                        reportAny = "none",
+                        reportExplicitAny = "none",
+                        reportUnannotatedClassAttribute = "none",
+                        reportMissingTypeArgument = "none",
+                        reportUnknownMemberType = "none",
+                        reportUnknownVariableType = "none",
+                    },
+                },
+            },
+        },
+    }
+)
 
 -----------------------------------------------------------------------------
 -- SECTION - KEY MAPPINGS -----------------------------------------
@@ -626,19 +665,19 @@ vim.keymap.set({ 'n', 'v' }, "grf", function()
 end)
 
 -- AI completion
-vim.keymap.set('i', "<c-f>", function()
-    if require 'minuet.virtualtext'.action.is_visible() then
-        require 'minuet.virtualtext'.action.accept()
-    else
-        require 'minuet.virtualtext'.action.next()
-    end
-end)
-vim.keymap.set('i', "<c-l>", function()
-    require('minuet.virtualtext').action.accept_line()
-end)
-vim.keymap.set('i', "<c-k>", function()
-    require('minuet.virtualtext').action.dismiss()
-end)
+-- vim.keymap.set('i', "<c-f>", function()
+--     if require 'minuet.virtualtext'.action.is_visible() then
+--         require 'minuet.virtualtext'.action.accept()
+--     else
+--         require 'minuet.virtualtext'.action.next()
+--     end
+-- end)
+-- vim.keymap.set('i', "<c-l>", function()
+--     require('minuet.virtualtext').action.accept_line()
+-- end)
+-- vim.keymap.set('i', "<c-k>", function()
+--     require('minuet.virtualtext').action.dismiss()
+-- end)
 
 -- Map 'W' same as 'w'
 vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
