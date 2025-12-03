@@ -406,6 +406,10 @@ require("lazy").setup({
                 },
             },
         },
+        {
+            "rose-pine/neovim",
+            name = "rose-pine",
+        },
     },
     install = {},
     checker = { enabled = false },
@@ -414,11 +418,11 @@ require("lazy").setup({
 require 'telescope'.load_extension("ui-select")
 
 -- SECTION - COLORSCHEME ----------------------------------------------
-vim.cmd.colorscheme("slate")
+vim.cmd.colorscheme("rose-pine")
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "WinSeparator", { bg = "bg", fg = "#afaf8b" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
-vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
+-- vim.api.nvim_set_hl(0, "WinSeparator", { bg = "bg", fg = "#afaf8b" })
+-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
+-- vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
 -- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
 
 -- rose-pine
