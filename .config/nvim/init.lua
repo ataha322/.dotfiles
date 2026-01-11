@@ -798,5 +798,10 @@ local function toggle_terminal()
     end
 end
 
-vim.keymap.set({ 'n', 'i', 't' }, '<C-\\>', toggle_terminal, { noremap = true, silent = true })
+vim.keymap.set({ 'n', 'i', 't' }, '<C-\\>', toggle_terminal, { silent = true })
 vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
+
+-- my own plugin development
+vim.keymap.set({ 'n', 'v' }, '<leader>ak', require('inline-edit').open_prompt, { silent = true })
+
+
