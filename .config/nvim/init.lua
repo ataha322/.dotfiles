@@ -409,6 +409,13 @@ require("lazy").setup({
         {
             "rose-pine/neovim",
             name = "rose-pine",
+            config = function()
+                require("rose-pine").setup({
+                    styles = {
+                        transparency = true,
+                    },
+                })
+            end,
         },
     },
     install = {},
@@ -803,5 +810,3 @@ vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
 
 -- my own plugin development
 vim.keymap.set({ 'n', 'v' }, '<leader>ak', require('inline-edit').open_prompt, { silent = true })
-
-
