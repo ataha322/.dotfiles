@@ -5,10 +5,12 @@ local api_key = os.getenv("ANTHROPIC_API_KEY")
 
 ---@param prompt string
 ---@param context Context
----@return string
-function M.call(prompt, context)
+---@param on_success fun(response: string)
+---@param on_error fun(err: string)
+function M.call(prompt, context, on_success, on_error)
     if not api_key then
-        error("ANTHROPIC_API_KEY environment variable not set")
+        on_error("ANTHROPIC_API_KEY environment variable not set")
+        return
     end
 
     -- Build the system prompt with context
@@ -19,8 +21,8 @@ function M.call(prompt, context)
 4. User's prompt (may be empty)
 
 Your task is edit the selection or provide new code that will go into the selection.
-Respond with the modified version of the selected code. If the selected code is empty, respond with what needs to be filled into the selection.
-ONLY RESPOND WITH CODE, no comments or explanations or anything else.
+Wrap your code response in <code></code> tags. Only include the code, no explanations.
+Even when input prompt is invalid, always respond with code inside <code></code> tags.
 
 Context before:
 ```
@@ -56,36 +58,41 @@ Context after:
 
     logging.log("Request body: " .. vim.inspect(request_body))
 
-    local response = curl.post("https://api.anthropic.com/v1/messages", {
+    curl.post("https://api.anthropic.com/v1/messages", {
         headers = {
             ["content-type"] = "application/json",
             ["x-api-key"] = api_key,
             ["anthropic-version"] = "2023-06-01"
         },
-        body = vim.fn.json_encode(request_body)
+        body = vim.fn.json_encode(request_body),
+        callback = function(response)
+            vim.schedule(function()
+                if response.status ~= 200 then
+                    on_error("API request failed with status " .. response.status .. ": " .. response.body)
+                    return
+                end
+
+                local ok, decoded = pcall(vim.fn.json_decode, response.body)
+                if not ok then
+                    on_error("Failed to parse API response: " .. response.body)
+                    return
+                end
+
+                if decoded.error then
+                    on_error("API error: " .. vim.inspect(decoded.error))
+                    return
+                end
+
+                logging.log("Decoded response: " .. vim.inspect(decoded))
+                -- Extract the text content from the response
+                if decoded.content and decoded.content[1] and decoded.content[1].text then
+                    on_success(decoded.content[1].text)
+                else
+                    on_error("Unexpected API response format: " .. vim.inspect(decoded))
+                end
+            end)
+        end
     })
-
-    -- Parse the response
-    if response.status ~= 200 then
-        error("API request failed with status " .. response.status .. ": " .. response.body)
-    end
-
-    local ok, decoded = pcall(vim.fn.json_decode, response.body)
-    if not ok then
-        error("Failed to parse API response: " .. response.body)
-    end
-
-    if decoded.error then
-        error("API error: " .. vim.inspect(decoded.error))
-    end
-
-    logging.log("Decoded response: " .. vim.inspect(decoded))
-    -- Extract the text content from the response
-    if decoded.content and decoded.content[1] and decoded.content[1].text then
-        return decoded.content[1].text
-    else
-        error("Unexpected API response format: " .. vim.inspect(decoded))
-    end
 end
 
 return M
