@@ -285,25 +285,9 @@ require("lazy").setup({
         --     end,
         --     event = "VeryLazy",
         -- },
-        {
-            "mason-org/mason-lspconfig.nvim",
-            opts = {
-                automatic_enable = {
-                    exclude = {
-                        "clangd",
-                    },
-                },
-                ensure_installed = {
-                    "lua_ls",
-                },
-            },
-            dependencies = {
-                { "mason-org/mason.nvim", opts = {} },
-                "neovim/nvim-lspconfig",
-            },
-        },
-        { 'tpope/vim-surround', event = "VeryLazy" },
-        { 'tpope/vim-sleuth',   event = "VeryLazy" },
+        { 'neovim/nvim-lspconfig', lazy = false },
+        { 'tpope/vim-surround',    event = "VeryLazy" },
+        { 'tpope/vim-sleuth',      event = "VeryLazy" },
         {
             'lewis6991/gitsigns.nvim',
             event = "VeryLazy",
@@ -459,6 +443,8 @@ vim.lsp.config("basedpyright",
         },
     }
 )
+
+vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
 
 -----------------------------------------------------------------------------
 -- SECTION - KEY MAPPINGS -----------------------------------------
