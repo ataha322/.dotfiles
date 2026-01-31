@@ -53,6 +53,8 @@ vim.opt.cursorline = true
 
 vim.opt.winborder = 'rounded'
 
+-- vim.opt.conceallevel = 1 -- so that obsidian can render special symbols
+
 vim.opt.completeopt:append({ 'noselect', 'fuzzy', 'popup', 'menuone' })
 
 
@@ -72,6 +74,25 @@ require("lazy").setup({
         timeout = 3600,
     },
     spec = {
+        {
+            "obsidian-nvim/obsidian.nvim",
+            event = "VeryLazy",
+            version = "*", -- use latest release, remove to use latest commit
+            ft = "markdown",
+            ---@module 'obsidian'
+            ---@type obsidian.config
+            config = function()
+                require("obsidian").setup({
+                    legacy_commands = false,
+                    workspaces = {
+                        {
+                            name = "paid",
+                            path = "/Users/atxa/Obsidian/Paid",
+                        },
+                    },
+                })
+            end,
+        },
         {
             "nvim-treesitter/nvim-treesitter",
             branch = 'master',
@@ -221,7 +242,6 @@ require("lazy").setup({
                     extensions = {
                         ["ui-select"] = {
                             require('telescope.themes').get_dropdown({
-                                winblend = 7,
                                 previewer = false,
                             })
                         }
@@ -560,7 +580,6 @@ vim.keymap.set('n', '<leader>gg', require('telescope.builtin').git_status, {})
 vim.keymap.set('n', '<leader>gl', function()
     require('telescope.builtin').git_branches(
         require('telescope.themes').get_dropdown({
-            winblend = 7,
             previewer = false,
         })
     )
@@ -596,7 +615,6 @@ vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, {})
 vim.keymap.set('n', '<leader>fc', function()
     require('telescope.builtin').colorscheme(
         require('telescope.themes').get_dropdown({
-            winblend = 7,
             previewer = false,
         })
     )
@@ -605,7 +623,6 @@ vim.keymap.set('n', '<leader><leader>', function()
     require('telescope.builtin').buffers(
         require('telescope.themes').get_dropdown({
             sort_mru = true,
-            winblend = 7,
             previewer = false,
         })
     )
@@ -631,7 +648,6 @@ vim.keymap.set('n', '<leader>fD', function()
 end)
 vim.keymap.set('n', '<leader>/', function()
     require('telescope.builtin').current_buffer_fuzzy_find(require 'telescope.themes'.get_dropdown({
-        winblend = 7,
         previewer = false,
     }))
 end)
@@ -659,6 +675,11 @@ end)
 -- formatting
 vim.keymap.set({ 'n', 'v' }, "grf", function()
     require('conform').format()
+end)
+
+-- obsidian
+vim.keymap.set({ 'n', 'v' }, "<leader>oo", function()
+    vim.cmd("Obsidian")
 end)
 
 -- AI completion
