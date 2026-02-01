@@ -53,8 +53,6 @@ vim.opt.cursorline = true
 
 vim.opt.winborder = 'rounded'
 
--- vim.opt.conceallevel = 1 -- so that obsidian can render special symbols
-
 vim.opt.completeopt:append({ 'noselect', 'fuzzy', 'popup', 'menuone' })
 
 
@@ -74,25 +72,6 @@ require("lazy").setup({
         timeout = 3600,
     },
     spec = {
-        {
-            "obsidian-nvim/obsidian.nvim",
-            event = "VeryLazy",
-            version = "*", -- use latest release, remove to use latest commit
-            ft = "markdown",
-            ---@module 'obsidian'
-            ---@type obsidian.config
-            config = function()
-                require("obsidian").setup({
-                    legacy_commands = false,
-                    workspaces = {
-                        {
-                            name = "paid",
-                            path = "/Users/atxa/Obsidian/Paid",
-                        },
-                    },
-                })
-            end,
-        },
         {
             "nvim-treesitter/nvim-treesitter",
             branch = 'master',
@@ -262,49 +241,6 @@ require("lazy").setup({
                 })
             end,
         },
-        -- {
-        --     'milanglacier/minuet-ai.nvim',
-        --     config = function()
-        --         require('minuet').setup {
-        --             provider = 'openai_fim_compatible',
-        --             n_completions = 1,
-        --             context_window = 2048,
-        --             provider_options = {
-        --                 -- openai_fim_compatible = {
-        --                 --     api_key = 'TERM',
-        --                 --     name = 'Llama.cpp',
-        --                 --     end_point = 'http://localhost:8012/v1/completions',
-        --                 --     model = 'PLACEHOLDER',
-        --                 --     optional = {
-        --                 --         max_tokens = 56,
-        --                 --         top_p = 0.9,
-        --                 --     },
-        --                 --     template = {
-        --                 --         prompt = function(context_before_cursor, context_after_cursor, _)
-        --                 --             return '<|fim_prefix|>'
-        --                 --                 .. context_before_cursor
-        --                 --                 .. '<|fim_suffix|>'
-        --                 --                 .. context_after_cursor
-        --                 --                 .. '<|fim_middle|>'
-        --                 --         end,
-        --                 --         suffix = false,
-        --                 --     },
-        --                 -- },
-        --                 openai_fim_compatible = {
-        --                     model = "mercury-coder",
-        --                     end_point = "https://api.inceptionlabs.ai/v1/fim/completions",
-        --                     api_key = "INCEPTION_API_KEY",
-        --                     stream = true,
-        --                 },
-        --             },
-        --             virtualtext = {
-        --                 auto_trigger_ft = { 'python', 'lua', 'rust', 'typescript', 'javascript', 'javascriptreact', 'typescriptreact' },
-        --                 -- auto_trigger_ft = {},
-        --             },
-        --         }
-        --     end,
-        --     event = "VeryLazy",
-        -- },
         { 'neovim/nvim-lspconfig', lazy = false },
         { 'tpope/vim-surround',    event = "VeryLazy" },
         { 'tpope/vim-sleuth',      event = "VeryLazy" },
@@ -545,17 +481,6 @@ end)
 -- clear search highlights
 vim.keymap.set("n", "<leader>nh", vim.cmd.nohlsearch)
 
--- manipulate CWD
-vim.keymap.set("n", "<leader>ww", vim.cmd.pwd)
-vim.keymap.set("n", "<leader>wc", function()
-    vim.cmd.cd("%:h") -- cd to current file directory
-    vim.cmd.pwd()
-end)
-vim.keymap.set("n", "<leader>wb", function()
-    vim.cmd.cd("..")
-    vim.cmd.pwd()
-end)
-
 vim.keymap.set('n', '[c', function()
     if vim.wo.diff then
         vim.cmd.normal({ '[c', bang = true })
@@ -651,12 +576,9 @@ vim.keymap.set('n', '<leader>/', function()
         previewer = false,
     }))
 end)
--- TODO:
--- builtin.commands({opts})                        *telescope.builtin.commands()*
--- builtin.oldfiles({opts})                        *telescope.builtin.oldfiles()*
--- builtin.command_history({opts})          *telescope.builtin.command_history()*
--- builtin.search_history({opts})            *telescope.builtin.search_history()*
--- builtin.vim_options({opts})                  *telescope.builtin.vim_options()*
+vim.keymap.set('n', '<leader>;', function()
+    require('telescope.builtin').commands()
+end)
 
 vim.keymap.set('n', 'grr', require('telescope.builtin').lsp_references)
 vim.keymap.set('n', 'gri', require('telescope.builtin').lsp_implementations)
@@ -677,45 +599,11 @@ vim.keymap.set({ 'n', 'v' }, "grf", function()
     require('conform').format()
 end)
 
--- obsidian
-vim.keymap.set({ 'n', 'v' }, "<leader>oo", function()
-    vim.cmd("Obsidian")
-end)
-
--- AI completion
--- vim.keymap.set('i', "<c-f>", function()
---     if require 'minuet.virtualtext'.action.is_visible() then
---         require 'minuet.virtualtext'.action.accept()
---     else
---         require 'minuet.virtualtext'.action.next()
---     end
--- end)
--- vim.keymap.set('i', "<c-l>", function()
---     require('minuet.virtualtext').action.accept_line()
--- end)
--- vim.keymap.set('i', "<c-k>", function()
---     require('minuet.virtualtext').action.dismiss()
--- end)
 
 -- Map 'W' same as 'w'
 vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>write<bang> <args>')
 
--- Compile latex into pdf
-vim.api.nvim_create_user_command("LL", function()
-    local cmd_pdflatex = 'pdflatex -file-line-error -halt-on-error -interaction=nonstopmode '
-    local cmd = cmd_pdflatex .. vim.fn.expand("%")
-    vim.fn.systemlist(cmd)
-    local exit_code = vim.v.shell_error
-
-    if exit_code == 0 then
-        vim.notify('Latex compiled')
-    else
-        vim.notify('Failed latex compile')
-    end
-end, {})
-
 vim.api.nvim_create_autocmd("BufWinEnter", {
-    pattern = "*.txt",
     callback = function()
         -- Make help buffers listed and fullscreen
         if vim.bo.filetype == "help" then
@@ -735,7 +623,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- Save and restore window view when switching buffers
 vim.api.nvim_create_autocmd({ 'BufLeave' }, {
     callback = function(args)
-        if vim.bo[args.buf].buftype == '' or vim.api.nvim_buf_get_name(args.buf):match('copilot%-chat') then
+        if vim.bo[args.buf].buftype == '' then
             vim.b[args.buf].view = vim.fn.winsaveview()
         end
     end
@@ -748,6 +636,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
     end
 })
 
+-- relative number line when normal, absolute when insert mode
 vim.api.nvim_create_autocmd({ 'InsertEnter' }, {
     callback = function()
         if vim.bo.buftype == "" then
@@ -755,7 +644,6 @@ vim.api.nvim_create_autocmd({ 'InsertEnter' }, {
         end
     end,
 })
-
 vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
     callback = function()
         if vim.bo.buftype == "" then
@@ -768,7 +656,6 @@ vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
 
 ------------------------------------------------------------------
 -- SECTION - TERMINAL
--- Nvim terminal in a separate unlisted buffer
 vim.api.nvim_create_autocmd('TermOpen', {
     group = vim.api.nvim_create_augroup('custom-term-open', { clear = true }),
     callback = function()
@@ -799,16 +686,6 @@ local function toggle_terminal()
         vim.cmd.buffer(terminal_bufnr)
         vim.api.nvim_command('terminal')
         vim.bo[terminal_bufnr].buflisted = false -- set to unlisted because `terminal` sets to listed
-
-        -- python venv activation
-        local venv_path = vim.fn.getcwd() .. '/venv/bin/activate'
-        if vim.fn.filereadable(venv_path) == 0 then
-            venv_path = vim.fn.getcwd() .. '/.venv/bin/activate'
-        end
-
-        if vim.fn.filereadable(venv_path) == 1 then
-            vim.api.nvim_chan_send(vim.bo[terminal_bufnr].channel, 'source ' .. venv_path .. '\n')
-        end
     end
 end
 
