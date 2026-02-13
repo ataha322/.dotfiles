@@ -9,24 +9,23 @@ local logging = require('inline-edit.logging')
 ---@field lines_before string[]
 ---@field lines_after string[]
 
--- Number of context lines to include before/after selection
-local CONTEXT_LINES = 50
-
 ---@return Context
-function M.get()
+local function get_surrounding_lines()
+    local CONTEXT_LINES = 50
     local bufnr = vim.api.nvim_get_current_buf()
     local mode = vim.fn.mode()
 
     local start_line, end_line
 
+    -- if matches visual, or visual line, or <C-v> block mode
     if mode:match("[vV\22]") then
-        -- Currently in visual mode
         start_line = vim.fn.getpos("v")[2]
         end_line = vim.fn.getpos(".")[2]
     else
-        -- Not in visual mode, try using '< and '> marks (last visual selection)
-        start_line = vim.fn.getpos("'<")[2]
-        end_line = vim.fn.getpos("'>")[2]
+        -- Not in visual mode, use current line only
+        local current_line = vim.fn.line(".")
+        start_line = current_line
+        end_line = current_line
     end
 
     -- Validate we got valid line numbers
@@ -38,13 +37,6 @@ function M.get()
     if end_line < start_line then
         start_line, end_line = end_line, start_line
     end
-
-    -- Validate lines are within buffer bounds
-    local line_count = vim.api.nvim_buf_line_count(bufnr)
-    if start_line > line_count then
-        error("Selection start line " .. start_line .. " is beyond buffer end " .. line_count)
-    end
-    end_line = math.min(end_line, line_count)
 
     local original_lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
 
@@ -67,6 +59,13 @@ function M.get()
         lines_before = lines_before,
         lines_after = lines_after,
     }
+end
+
+---@return Context
+function M.get()
+    return get_surrounding_lines()
+    -- return get_treesitter_context()
+    -- return get_treesitter_and_lsp_context()
 end
 
 return M

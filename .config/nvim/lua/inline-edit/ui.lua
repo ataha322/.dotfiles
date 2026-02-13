@@ -19,7 +19,7 @@ local active_changes = {}
 function M.show_processing(ctx)
     for i = ctx.start_line, ctx.end_line do
         vim.api.nvim_buf_set_extmark(ctx.bufnr, ns_processing, i - 1, 0, {
-            line_hl_group = "CurSearch",
+            line_hl_group = "DiffChange",
             priority = 100,
         })
     end

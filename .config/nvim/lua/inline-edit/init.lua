@@ -8,10 +8,10 @@ local config = require('inline-edit.config')
 
 ---@return nil
 function M.open_prompt()
-    -- Capture context before vim.ui.input
+    -- capture context
     local ctx = context.get()
 
-    -- Exit visual mode to normal mode
+    -- go to normal mode
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
 
     vim.ui.input({ prompt = 'Edit instruction: ' }, function(input)
