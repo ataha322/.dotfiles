@@ -79,8 +79,8 @@ require("lazy").setup({
 
                 local basename = vim.fs.basename(vim.uv.cwd())
                 _99.setup({
-                    provider = _99.Providers.OpenCodeProvider,
-                    model = "anthropic/claude-sonnet-4-6",
+                    provider = _99.Providers.ClaudeCodeProvider,
+                    model = "claude-sonnet-4-6",
                     logger = {
                         level = _99.DEBUG,
                         path = "/tmp/" .. basename .. ".99.debug",
@@ -159,10 +159,6 @@ require("lazy").setup({
                     require("99.extensions.pickers").select_provider()
                 end)
             end,
-        },
-        {
-            "OXY2DEV/markview.nvim",
-            lazy = false,
         },
         {
             "nvim-treesitter/nvim-treesitter",
@@ -714,7 +710,7 @@ vim.cmd('command! -bar -nargs=* -complete=file -range=% -bang W <line1>,<line2>w
 vim.api.nvim_create_autocmd("BufWinEnter", {
     callback = function()
         -- Make help buffers listed and fullscreen
-        if vim.bo.filetype == "help" then
+        if vim.bo.buftype == "help" then
             vim.bo.buflisted = true
             vim.cmd("only")
         end
