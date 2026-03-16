@@ -73,17 +73,14 @@ require("lazy").setup({
     },
     spec = {
         {
-            "ThePrimeagen/99",
+            dir = "/Users/atxa/code/repos/99",
             config = function()
                 local _99 = require("99")
 
-                -- For logging that is to a file if you wish to trace through requests
-                -- for reporting bugs, i would not rely on this, but instead the provided
-                -- logging mechanisms within 99.  This is for more debugging purposes
-                local cwd = vim.uv.cwd()
-                local basename = vim.fs.basename(cwd)
+                local basename = vim.fs.basename(vim.uv.cwd())
                 _99.setup({
-                    -- provider = _99.Providers.ClaudeCodeProvider,  -- default: OpenCodeProvider
+                    provider = _99.Providers.OpenCodeProvider,
+                    model = "anthropic/claude-sonnet-4-6",
                     logger = {
                         level = _99.DEBUG,
                         path = "/tmp/" .. basename .. ".99.debug",
@@ -94,16 +91,10 @@ require("lazy").setup({
                     -- and generation will fail refer to tool documentation to resolve
                     -- https://opencode.ai/docs/permissions/#external-directories
                     -- https://code.claude.com/docs/en/permissions#read-and-edit
-                    tmp_dir = "./tmp",
+                    tmp_dir = "./.99-tmp",
 
                     --- Completions: #rules and @files in the prompt buffer
                     completion = {
-                        -- I am going to disable these until i understand the
-                        -- problem better.  Inside of cursor rules there is also
-                        -- application rules, which means i need to apply these
-                        -- differently
-                        -- cursor_rules = "<custom path to cursor rules>"
-
                         --- A list of folders where you have your own SKILL.md
                         --- Expected format:
                         --- /path/to/dir/<skill_name>/SKILL.md
@@ -122,18 +113,14 @@ require("lazy").setup({
 
                         --- Configure @file completion (all fields optional, sensible defaults)
                         files = {
-                            -- enabled = true,
-                            -- max_file_size = 102400,     -- bytes, skip files larger than this
-                            -- max_files = 5000,            -- cap on total discovered files
-                            -- exclude = { ".env", ".env.*", "node_modules", ".git", ... },
+                            enabled = true,
+                            max_file_size = 102400,     -- bytes, skip files larger than this
+                            max_files = 5000,            -- cap on total discovered files
+                            exclude = { ".env", ".env.*", "node_modules", ".git", "venv", ".venv", "dist" },
                         },
-                        --- File Discovery:
-                        --- - In git repos: Uses `git ls-files` which automatically respects .gitignore
-                        --- - Non-git repos: Falls back to filesystem scanning with manual excludes
-                        --- - Both methods apply the configured `exclude` list on top of gitignore
 
                         --- What autocomplete engine to use. Defaults to native (built-in) if not specified.
-                        source = "native", -- "native" (default), "cmp", or "blink"
+                        source = "native",
                     },
 
                     --- WARNING: if you change cwd then this is likely broken
@@ -147,17 +134,11 @@ require("lazy").setup({
                     --- assuming that /foo is project root (based on cwd)
                     md_files = {
                         "AGENT.md",
+                        "CLAUDE.md",
                     },
                 })
 
-                -- take extra note that i have visual selection only in v mode
-                -- technically whatever your last visual selection is, will be used
-                -- so i have this set to visual mode so i dont screw up and use an
-                -- old visual selection
-                --
-                -- likely ill add a mode check and assert on required visual mode
-                -- so just prepare for it now
-                vim.keymap.set("v", "<leader>9v", function()
+                vim.keymap.set("v", "<leader>ae", function()
                     _99.visual()
                 end)
 
@@ -168,6 +149,14 @@ require("lazy").setup({
 
                 vim.keymap.set("n", "<leader>as", function()
                     _99.search()
+                end)
+
+                vim.keymap.set("n", "<leader>am", function()
+                    require("99.extensions.pickers").select_model()
+                end)
+
+                vim.keymap.set("n", "<leader>aP", function()
+                    require("99.extensions.pickers").select_provider()
                 end)
             end,
         },
