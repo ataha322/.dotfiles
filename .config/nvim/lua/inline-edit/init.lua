@@ -3,7 +3,6 @@ local M = {}
 local ui = require('inline-edit.ui')
 local context = require('inline-edit.context')
 local llm = require('inline-edit.llm')
-local diff = require('inline-edit.diff')
 local config = require('inline-edit.config')
 local logging = require('inline-edit.logging')
 
@@ -23,22 +22,27 @@ function M.open_prompt()
         ui.show_processing(ctx)
 
         llm.call(input, ctx, function(llm_response)
-            ui.clear_processing(ctx)
+            ui.clear_processing(ctx.bufnr)
 
             logging.log("LLM response: " .. llm_response)
-
-            local ok, difference = pcall(diff.get, ctx, llm_response)
-            if not ok then
-                vim.notify("inline-edit: " .. tostring(difference), vim.log.levels.ERROR)
-                return
-            end
-
-            ui.show_results(ctx, difference)
+            ui.apply_response(ctx, llm_response)
         end, function(err)
-            ui.clear_processing(ctx)
+            ui.clear_processing(ctx.bufnr)
             vim.notify("inline-edit: " .. err, vim.log.levels.ERROR)
         end)
     end)
+end
+
+local function setup_autocommands()
+    local augroup = vim.api.nvim_create_augroup("InlineEdit", { clear = true })
+
+    -- Clean up state when buffer is deleted
+    vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout" }, {
+        group = augroup,
+        callback = function(ev)
+            ui.clear_processing(ev.buf)
+        end,
+    })
 end
 
 ---@param opts InlineEditConfig|nil
@@ -53,7 +57,7 @@ function M.setup(opts)
         })
     end
 
-    ui.setup()
+    setup_autocommands()
 end
 
 return M

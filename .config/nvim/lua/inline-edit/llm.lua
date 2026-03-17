@@ -33,7 +33,7 @@ It will contain:
 
 Your task is edit the selection or provide new code that will go into the selection.
 Wrap your code response in <code></code> tags. Only include the code that will be inserted into the selection, no explanations.
-ONLY RESPOND WITH <code>...</code> block.]]
+ONLY RESPOND WITH ONE <code>...</code> block.]]
 
     local llm_prompt = string.format(
         [[<user_code>
