@@ -11,7 +11,7 @@ function M.call(system_prompt, prompt, model, _, on_success, on_error)
     end
 
     local request_body = {
-        model = model or "claude-haiku-4-5",
+        model = model or "claude-sonnet-4-6",
         max_tokens = 4096,
         system = system_prompt,
         messages = {

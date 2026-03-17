@@ -1,3 +1,17 @@
+local function load_env(path)
+    local f = io.open(path, "r")
+    if not f then return end
+    for line in f:lines() do
+        local key, value = line:match("^([^#][%w_]*)=(.+)$")
+        if key then
+            vim.fn.setenv(key, value)
+        end
+    end
+    f:close()
+end
+
+load_env(vim.fn.stdpath("config") .. "/.env")
+
 -- Bootstrap lazy.nvim -------------------------------------
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -73,74 +87,15 @@ require("lazy").setup({
     },
     spec = {
         {
-            dir = "/Users/atxa/code/repos/99",
+            "ThePrimeagen/99",
             config = function()
                 local _99 = require("99")
 
-                local basename = vim.fs.basename(vim.uv.cwd())
                 _99.setup({
                     provider = _99.Providers.ClaudeCodeProvider,
                     model = "claude-sonnet-4-6",
-                    logger = {
-                        level = _99.DEBUG,
-                        path = "/tmp/" .. basename .. ".99.debug",
-                        print_on_error = true,
-                    },
-                    -- When setting this to something that is not inside the CWD tools
-                    -- such as claude code or opencode will have permission issues
-                    -- and generation will fail refer to tool documentation to resolve
-                    -- https://opencode.ai/docs/permissions/#external-directories
-                    -- https://code.claude.com/docs/en/permissions#read-and-edit
                     tmp_dir = "./.99-tmp",
-
-                    --- Completions: #rules and @files in the prompt buffer
-                    completion = {
-                        --- A list of folders where you have your own SKILL.md
-                        --- Expected format:
-                        --- /path/to/dir/<skill_name>/SKILL.md
-                        ---
-                        --- Example:
-                        --- Input Path:
-                        --- "scratch/custom_rules/"
-                        ---
-                        --- Output Rules:
-                        --- {path = "scratch/custom_rules/vim/SKILL.md", name = "vim"},
-                        --- ... the other rules in that dir ...
-                        ---
-                        custom_rules = {
-                            "scratch/custom_rules/",
-                        },
-
-                        --- Configure @file completion (all fields optional, sensible defaults)
-                        files = {
-                            enabled = true,
-                            max_file_size = 102400, -- bytes, skip files larger than this
-                            max_files = 5000,       -- cap on total discovered files
-                            exclude = { ".env", ".env.*", "node_modules", ".git", "venv", ".venv", "dist" },
-                        },
-
-                        --- What autocomplete engine to use. Defaults to native (built-in) if not specified.
-                        source = "native",
-                    },
-
-                    --- WARNING: if you change cwd then this is likely broken
-                    --- ill likely fix this in a later change
-                    ---
-                    --- md_files is a list of files to look for and auto add based on the location
-                    --- of the originating request.  That means if you are at /foo/bar/baz.lua
-                    --- the system will automagically look for:
-                    --- /foo/bar/AGENT.md
-                    --- /foo/AGENT.md
-                    --- assuming that /foo is project root (based on cwd)
-                    md_files = {
-                        "AGENT.md",
-                        "CLAUDE.md",
-                    },
                 })
-
-                vim.keymap.set("v", "<leader>ae", function()
-                    _99.visual()
-                end)
 
                 --- if you have a request you dont want to make any changes, just cancel it
                 vim.keymap.set("n", "<leader>ax", function()
@@ -149,14 +104,6 @@ require("lazy").setup({
 
                 vim.keymap.set("n", "<leader>as", function()
                     _99.search()
-                end)
-
-                vim.keymap.set("n", "<leader>am", function()
-                    require("99.extensions.pickers").select_model()
-                end)
-
-                vim.keymap.set("n", "<leader>aP", function()
-                    require("99.extensions.pickers").select_provider()
                 end)
             end,
         },
@@ -798,18 +745,3 @@ vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
 
 -- my own plugin development
 require('inline-edit').setup()
-
-
-local function load_env(path)
-    local f = io.open(path, "r")
-    if not f then return end
-    for line in f:lines() do
-        local key, value = line:match("^([^#][%w_]*)=(.+)$")
-        if key then
-            vim.fn.setenv(key, value)
-        end
-    end
-    f:close()
-end
-
-load_env(vim.fn.stdpath("config") .. "/.env")
