@@ -2,9 +2,9 @@ local M = {}
 local diff = require("inline-edit.diff")
 local logging = require("inline-edit.logging")
 local config = require("inline-edit.config")
+local shimmer = require("inline-edit.shimmer")
 
 local ns_id = vim.api.nvim_create_namespace("inline-edit")
-local ns_processing = vim.api.nvim_create_namespace("inline-edit-processing")
 
 ---@class Change
 ---@field bufnr number
@@ -17,17 +17,12 @@ local active_changes = {}
 
 ---@param ctx Context
 function M.show_processing(ctx)
-    for i = ctx.start_line, ctx.end_line do
-        vim.api.nvim_buf_set_extmark(ctx.bufnr, ns_processing, i - 1, 0, {
-            line_hl_group = "DiffChange",
-            priority = 100,
-        })
-    end
+    shimmer.start(ctx)
 end
 
 ---@param ctx Context
 function M.clear_processing(ctx)
-    vim.api.nvim_buf_clear_namespace(ctx.bufnr, ns_processing, 0, -1)
+    shimmer.stop(ctx.bufnr)
 end
 
 ---@param bufnr number
@@ -219,6 +214,7 @@ local function setup_autocommands()
         group = augroup,
         callback = function(ev)
             active_changes[ev.buf] = nil
+            shimmer.stop(ev.buf)
         end,
     })
 end

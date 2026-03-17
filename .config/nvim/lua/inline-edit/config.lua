@@ -13,7 +13,7 @@ local M = {}
 ---@field endpoint_url string|nil
 
 ---@class InlineEditContextConfig
----@field more_lines number
+---@field more_selected_lines number
 
 ---@class InlineEditConfig
 ---@field keymaps InlineEditKeymaps
@@ -31,7 +31,7 @@ local defaults = {
     },
     llm = {
         provider = "anthropic",
-        model = "claude-haiku-4-5",
+        model = "claude-sonnet-4-6",
         endpoint_url = nil,
     },
     context = {

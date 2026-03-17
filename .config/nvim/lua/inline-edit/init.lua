@@ -5,6 +5,7 @@ local context = require('inline-edit.context')
 local llm = require('inline-edit.llm')
 local diff = require('inline-edit.diff')
 local config = require('inline-edit.config')
+local logging = require('inline-edit.logging')
 
 ---@return nil
 function M.open_prompt()
