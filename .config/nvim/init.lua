@@ -114,8 +114,8 @@ require("lazy").setup({
                         --- Configure @file completion (all fields optional, sensible defaults)
                         files = {
                             enabled = true,
-                            max_file_size = 102400,     -- bytes, skip files larger than this
-                            max_files = 5000,            -- cap on total discovered files
+                            max_file_size = 102400, -- bytes, skip files larger than this
+                            max_files = 5000,       -- cap on total discovered files
                             exclude = { ".env", ".env.*", "node_modules", ".git", "venv", ".venv", "dist" },
                         },
 
@@ -798,3 +798,18 @@ vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
 
 -- my own plugin development
 require('inline-edit').setup()
+
+
+local function load_env(path)
+    local f = io.open(path, "r")
+    if not f then return end
+    for line in f:lines() do
+        local key, value = line:match("^([^#][%w_]*)=(.+)$")
+        if key then
+            vim.fn.setenv(key, value)
+        end
+    end
+    f:close()
+end
+
+load_env(vim.fn.stdpath("config") .. "/.env")
