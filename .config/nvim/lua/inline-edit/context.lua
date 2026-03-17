@@ -1,5 +1,6 @@
 local M = {}
 local logging = require('inline-edit.logging')
+local config = require('inline-edit.config')
 
 ---@class Context
 ---@field bufnr number
@@ -14,6 +15,7 @@ local function get_surrounding_lines()
     local CONTEXT_LINES = 50
     local bufnr = vim.api.nvim_get_current_buf()
     local mode = vim.fn.mode()
+    local more_selected_lines = config.options.context.more_selected_lines
 
     local start_line, end_line
 
@@ -28,15 +30,13 @@ local function get_surrounding_lines()
         end_line = current_line
     end
 
-    -- Validate we got valid line numbers
-    if start_line == 0 or end_line == 0 then
-        error("No visual selection found. Please select text first.")
-    end
-
     -- Ensure start <= end
     if end_line < start_line then
         start_line, end_line = end_line, start_line
     end
+
+    start_line = math.max(1, start_line - more_selected_lines)
+    end_line = math.min(vim.api.nvim_buf_line_count(bufnr), end_line + more_selected_lines)
 
     local original_lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
 

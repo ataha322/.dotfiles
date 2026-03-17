@@ -7,18 +7,36 @@ local M = {}
 ---@field accept_all string|false Keymap to accept all changes
 ---@field reject_all string|false Keymap to reject all changes
 
+---@class InlineEditLlmConfig
+---@field provider string
+---@field model string
+---@field endpoint_url string|nil
+
+---@class InlineEditContextConfig
+---@field more_lines number
+
 ---@class InlineEditConfig
 ---@field keymaps InlineEditKeymaps
+---@field llm InlineEditLlmConfig
+---@field context InlineEditContextConfig
 
 ---@type InlineEditConfig
 local defaults = {
     keymaps = {
-        open_prompt = "<leader>ak",
+        open_prompt = "<leader>ae",
         accept = "<D-y>",
         reject = "<D-u>",
         accept_all = "<D-S-y>",
         reject_all = "<D-S-u>",
     },
+    llm = {
+        provider = "anthropic",
+        model = "claude-haiku-4-5",
+        endpoint_url = nil,
+    },
+    context = {
+        more_selected_lines = 0,
+    }
 }
 
 ---@type InlineEditConfig

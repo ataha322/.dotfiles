@@ -24,6 +24,8 @@ function M.open_prompt()
         llm.call(input, ctx, function(llm_response)
             ui.clear_processing(ctx)
 
+            logging.log("LLM response: " .. llm_response)
+
             local ok, difference = pcall(diff.get, ctx, llm_response)
             if not ok then
                 vim.notify("inline-edit: " .. tostring(difference), vim.log.levels.ERROR)
