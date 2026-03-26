@@ -1,6 +1,7 @@
 local M = {}
 
 local config = require('inline-edit.config')
+local logging = require('inline-edit.logging')
 local anthropic = require('inline-edit.llm.anthropic')
 local openai = require('inline-edit.llm.openai')
 
@@ -42,15 +43,20 @@ ONLY RESPOND WITH ONE <code>...</code> block.]]
 %s
 </selection>
 %s
+</user_code>
 <prompt>
 %s
-</prompt>
-</user_code>]],
+</prompt>]],
         table.concat(context.lines_before, "\n"),
         table.concat(context.original_lines, "\n"),
         table.concat(context.lines_after, "\n"),
         prompt
     )
+
+    logging.log(string.format(
+        "calling LLM with prompt:\n%s\n\n",
+        llm_prompt
+    ))
 
     client.call(system_prompt, llm_prompt, config.options.llm.model, endpoint_url, on_success, on_error)
 end

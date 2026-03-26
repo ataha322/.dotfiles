@@ -48,15 +48,6 @@ end
 ---@param opts InlineEditConfig|nil
 function M.setup(opts)
     config.setup(opts)
-
-    local keymaps = config.options.keymaps
-    if keymaps.open_prompt then
-        vim.keymap.set({ 'n', 'v' }, keymaps.open_prompt, M.open_prompt, {
-            silent = true,
-            desc = "Open inline-edit prompt",
-        })
-    end
-
     setup_autocommands()
 end
 

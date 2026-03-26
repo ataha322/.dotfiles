@@ -1,8 +1,5 @@
 local M = {}
 
----@class InlineEditKeymaps
----@field open_prompt string|false Keymap to open the edit prompt (visual/normal mode)
-
 ---@class InlineEditLlmConfig
 ---@field provider string
 ---@field model string
@@ -12,15 +9,11 @@ local M = {}
 ---@field more_selected_lines number
 
 ---@class InlineEditConfig
----@field keymaps InlineEditKeymaps
----@field llm InlineEditLlmConfig
----@field context InlineEditContextConfig
+---@field llm? InlineEditLlmConfig
+---@field context? InlineEditContextConfig
 
 ---@type InlineEditConfig
 local defaults = {
-    keymaps = {
-        open_prompt = "<leader>ae",
-    },
     llm = {
         provider = "anthropic",
         model = "claude-sonnet-4-6",

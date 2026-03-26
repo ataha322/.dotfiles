@@ -338,8 +338,8 @@ require("lazy").setup({
                         layout = "float", ---@type "float"|"left"|"bottom"|"top"|"right"
                         ---@type vim.api.keyset.win_config
                         float = {
-                            width = 0.75,
-                            height = 0.75,
+                            width = 0.90,
+                            height = 0.90,
                         },
                         keys = {
                             hide_n = false,
@@ -744,4 +744,12 @@ vim.keymap.set({ 'n', 'i', 't' }, '<C-\\>', toggle_terminal, { silent = true })
 vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
 
 -- my own plugin development
-require('inline-edit').setup()
+require('inline-edit').setup({
+    -- context = {
+    --     more_selected_lines = 2,
+    -- },
+})
+vim.keymap.set({ 'n', 'v' }, "<leader>ae", require('inline-edit').open_prompt, {
+    silent = true,
+    desc = "Open inline-edit prompt",
+})
