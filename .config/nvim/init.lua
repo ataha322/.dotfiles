@@ -338,8 +338,8 @@ require("lazy").setup({
                         layout = "float", ---@type "float"|"left"|"bottom"|"top"|"right"
                         ---@type vim.api.keyset.win_config
                         float = {
-                            width = 0.90,
-                            height = 0.90,
+                            width = 0.75,
+                            height = 0.75,
                         },
                         keys = {
                             hide_n = false,
@@ -753,3 +753,12 @@ vim.keymap.set({ 'n', 'v' }, "<leader>ae", require('inline-edit').open_prompt, {
     silent = true,
     desc = "Open inline-edit prompt",
 })
+
+-- my own notes in neovim
+vim.keymap.set("n", "<C-;>", function()
+    require 'ata_notes'.toggle_notes_buffer(vim.fn.stdpath("data") .. "/ATA_NOTES.md")
+end, { desc = "Toggle global notes" })
+
+vim.keymap.set("n", "<C-'>", function()
+    require 'ata_notes'.toggle_notes_buffer(vim.fn.getcwd() .. "/ATA_NOTES.md")
+end, { desc = "Toggle project notes" })
