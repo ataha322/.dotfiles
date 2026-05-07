@@ -438,6 +438,22 @@ vim.lsp.config("basedpyright",
     }
 )
 
+-- make rust-analyzer work on standalone rs files outisde a cargo project
+vim.lsp.config("rust_analyzer", {
+    root_dir = function(bufnr, cb)
+        local fname = vim.api.nvim_buf_get_name(bufnr)
+        local root = vim.fs.root(fname, { "Cargo.toml", "rust-project.json" })
+        cb(root or vim.fs.dirname(fname))
+    end,
+    before_init = function(init_params, config)
+        if config.settings and config.settings['rust-analyzer'] then
+            init_params.initializationOptions = config.settings['rust-analyzer']
+        end
+        init_params.initializationOptions = init_params.initializationOptions or {}
+        init_params.initializationOptions.detachedFiles = { vim.api.nvim_buf_get_name(0) }
+    end,
+})
+
 vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
 
 -----------------------------------------------------------------------------
@@ -518,6 +534,13 @@ vim.keymap.set("n", "<leader>h", function()
 end)
 -- clear search highlights
 vim.keymap.set("n", "<leader>nh", vim.cmd.nohlsearch)
+
+-- delete all lines containing the word under cursor
+vim.keymap.set("n", "<leader>wd", function()
+    local word = vim.fn.expand("<cword>")
+    if word == "" then return end
+    vim.cmd("g/\\<" .. word .. "\\>/d")
+end, { desc = "Delete all lines containing word under cursor" })
 
 vim.keymap.set('n', '[c', function()
     if vim.wo.diff then
@@ -756,7 +779,7 @@ vim.keymap.set({ 'n', 'v' }, "<leader>ae", require('inline-edit').open_prompt, {
 
 -- my own notes in neovim
 vim.keymap.set("n", "<C-;>", function()
-    require 'ata_notes'.toggle_notes_buffer(vim.fn.stdpath("data") .. "/ATA_NOTES.md")
+    require 'ata_notes'.toggle_notes_buffer("~/ATA_NOTES.md")
 end, { desc = "Toggle global notes" })
 
 vim.keymap.set("n", "<C-'>", function()
