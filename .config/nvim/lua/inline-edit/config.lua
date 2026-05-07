@@ -3,7 +3,9 @@ local M = {}
 ---@class InlineEditLlmConfig
 ---@field provider string
 ---@field model string
+---@field reasoning_effort string|nil
 ---@field endpoint_url string|nil
+---@field temperature number|nil
 
 ---@class InlineEditContextConfig
 ---@field more_selected_lines number
@@ -15,9 +17,11 @@ local M = {}
 ---@type InlineEditConfig
 local defaults = {
     llm = {
-        provider = "anthropic",
-        model = "claude-sonnet-4-6",
+        provider = "openai",
+        model = "gpt-5.3-codex",
+        reasoning_effort = nil,
         endpoint_url = nil,
+        temperature = 0.2,
     },
     context = {
         more_selected_lines = 0,

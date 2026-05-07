@@ -1,17 +1,35 @@
 local M = {}
 
 local curl = require('plenary.curl')
+local config = require('inline-edit.config')
 
-function M.call(system_prompt, prompt, model, endpoint_url, on_success, on_error)
-    local api_key = os.getenv("OPENAI_API_KEY")
+local provider_defaults = {
+    openai = {
+        api_key_env = "OPENAI_API_KEY",
+        endpoint_url = "https://api.openai.com/v1/chat/completions",
+        model = "gpt-5.3-codex",
+    },
+    cerebras = {
+        api_key_env = "CEREBRAS_API_KEY",
+        endpoint_url = "https://api.cerebras.ai/v1/chat/completions",
+        model = "gpt-oss-120b",
+    },
+}
+
+function M.call(system_prompt, prompt, model, reasoning_effort, endpoint_url, temperature, on_success, on_error)
+    local provider = config.options.llm.provider
+    local defaults = provider_defaults[provider] or provider_defaults.openai
+    local api_key = os.getenv(defaults.api_key_env)
 
     if not api_key then
-        on_error("OPENAI_API_KEY environment variable not set")
+        on_error(defaults.api_key_env .. " environment variable not set")
         return
     end
 
     local request_body = {
-        model = model or "gpt-5.1-codex-mini",
+        model = model or defaults.model,
+        reasoning_effort = reasoning_effort,
+        temperature = temperature,
         messages = {
             {
                 role = "system",
@@ -24,7 +42,7 @@ function M.call(system_prompt, prompt, model, endpoint_url, on_success, on_error
         }
     }
 
-    curl.post(endpoint_url or "https://api.openai.com/v1/chat/completions", {
+    curl.post(endpoint_url or defaults.endpoint_url, {
         headers = {
             ["content-type"] = "application/json",
             ["authorization"] = "Bearer " .. api_key

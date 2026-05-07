@@ -768,6 +768,11 @@ vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
 
 -- my own plugin development
 require('inline-edit').setup({
+    llm = {
+        provider = "cerebras",
+        model = "zai-glm-4.7",
+        reasoning_effort = "medium",
+    },
     -- context = {
     --     more_selected_lines = 2,
     -- },

@@ -2,7 +2,7 @@ local M = {}
 
 local curl = require('plenary.curl')
 
-function M.call(system_prompt, prompt, model, _, on_success, on_error)
+function M.call(system_prompt, prompt, model, _, _, temperature, on_success, on_error)
     local api_key = os.getenv("ANTHROPIC_API_KEY")
 
     if not api_key then
@@ -13,6 +13,7 @@ function M.call(system_prompt, prompt, model, _, on_success, on_error)
     local request_body = {
         model = model or "claude-sonnet-4-6",
         max_tokens = 4096,
+        temperature = temperature,
         system = system_prompt,
         messages = {
             {

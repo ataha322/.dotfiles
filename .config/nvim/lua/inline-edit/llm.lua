@@ -8,6 +8,7 @@ local openai = require('inline-edit.llm.openai')
 local providers = {
     anthropic = anthropic,
     openai = openai,
+    cerebras = openai,
 }
 
 ---@param prompt string
@@ -17,6 +18,8 @@ local providers = {
 function M.call(prompt, context, on_success, on_error)
     local provider = config.options.llm.provider
     local endpoint_url = config.options.llm.endpoint_url
+    local reasoning_effort = config.options.llm.reasoning_effort
+    local temperature = config.options.llm.temperature
     local client = providers[provider]
 
     if not client then
@@ -58,7 +61,16 @@ ONLY RESPOND WITH ONE <code>...</code> block.]]
         llm_prompt
     ))
 
-    client.call(system_prompt, llm_prompt, config.options.llm.model, endpoint_url, on_success, on_error)
+    client.call(
+        system_prompt,
+        llm_prompt,
+        config.options.llm.model,
+        reasoning_effort,
+        endpoint_url,
+        temperature,
+        on_success,
+        on_error
+    )
 end
 
 return M
