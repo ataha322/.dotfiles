@@ -87,6 +87,17 @@ require("lazy").setup({
     },
     spec = {
         {
+            'stevearc/oil.nvim',
+            ---@module 'oil'
+            ---@type oil.SetupOpts
+            opts = {},
+            -- Optional dependencies
+            -- dependencies = { { "nvim-mini/mini.icons", opts = {} } },
+            -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+            -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+            lazy = false,
+        },
+        {
             "ThePrimeagen/99",
             config = function()
                 local _99 = require("99")
@@ -466,7 +477,8 @@ vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
 --     end
 -- end)
 vim.keymap.set("n", "<leader>ee", function()
-    vim.cmd("23Lex")
+    -- vim.cmd("23Lex")
+    vim.cmd("Oil")
 end)
 
 -- keep cursor in place
