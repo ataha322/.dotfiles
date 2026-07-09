@@ -62,3 +62,8 @@ rnm() {
 precmd () {print -Pn "\e]0;%1~\a"} # set terminal window title
 
 export EDITOR=nvim
+
+export HISTFILE=~/.zsh_history
+export HISTSIZE=100000
+export SAVEHIST=100000
+setopt SHARE_HISTORY
