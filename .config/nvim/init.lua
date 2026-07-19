@@ -1,3 +1,8 @@
+if os.getenv("NVIM") then
+    -- for when already inside a neovim terminal
+    vim.cmd("cquit")
+end
+
 local function load_env(path)
     local f = io.open(path, "r")
     if not f then return end
@@ -96,27 +101,6 @@ require("lazy").setup({
             -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
             -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
             lazy = false,
-        },
-        {
-            "ThePrimeagen/99",
-            config = function()
-                local _99 = require("99")
-
-                _99.setup({
-                    provider = _99.Providers.ClaudeCodeProvider,
-                    model = "claude-sonnet-4-6",
-                    tmp_dir = "./.99-tmp",
-                })
-
-                --- if you have a request you dont want to make any changes, just cancel it
-                vim.keymap.set("n", "<leader>ax", function()
-                    _99.stop_all_requests()
-                end)
-
-                vim.keymap.set("n", "<leader>as", function()
-                    _99.search()
-                end)
-            end,
         },
         {
             "nvim-treesitter/nvim-treesitter",
