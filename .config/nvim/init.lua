@@ -296,7 +296,7 @@ require("lazy").setup({
             event = "VeryLazy",
             opts = {
                 current_line_blame = true,
-                current_line_blame_opts = { delay = 100 },
+                current_line_blame_opts = { delay = 0 },
                 gh = true,
             }
         },
@@ -448,22 +448,6 @@ vim.lsp.config("basedpyright",
         },
     }
 )
-
--- make rust-analyzer work on standalone rs files outisde a cargo project
-vim.lsp.config("rust_analyzer", {
-    root_dir = function(bufnr, cb)
-        local fname = vim.api.nvim_buf_get_name(bufnr)
-        local root = vim.fs.root(fname, { "Cargo.toml", "rust-project.json" })
-        cb(root or vim.fs.dirname(fname))
-    end,
-    before_init = function(init_params, config)
-        if config.settings and config.settings['rust-analyzer'] then
-            init_params.initializationOptions = config.settings['rust-analyzer']
-        end
-        init_params.initializationOptions = init_params.initializationOptions or {}
-        init_params.initializationOptions.detachedFiles = { vim.api.nvim_buf_get_name(0) }
-    end,
-})
 
 vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
 
