@@ -12,7 +12,7 @@ local config = require('inline-edit.config')
 
 ---@return Context
 local function get_surrounding_lines()
-    local CONTEXT_LINES = 50
+    local CONTEXT_LINES = 500
     local bufnr = vim.api.nvim_get_current_buf()
     local mode = vim.fn.mode()
     local more_selected_lines = config.options.context.more_selected_lines

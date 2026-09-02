@@ -1,4 +1,5 @@
-1. Oil.nvim
-2. markdown renderer 
-  - render-markdown.nvim
-  - markview.nvim
+1. copilot language server via built int inline completion
+2. wtf is a codelens
+3. 0.13 will have a new dir view in place of netrw, move there
+4. folds in neovim, treesitter folds
+

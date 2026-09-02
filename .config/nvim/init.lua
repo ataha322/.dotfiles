@@ -17,24 +17,6 @@ end
 
 load_env(vim.fn.stdpath("config") .. "/.env")
 
--- Bootstrap lazy.nvim -------------------------------------
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-    if vim.v.shell_error ~= 0 then
-        vim.api.nvim_echo({
-            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-            { out,                            "WarningMsg" },
-            { "\nPress any key to exit..." },
-        }, true, {})
-        vim.fn.getchar()
-        os.exit(1)
-    end
-end
-vim.opt.rtp:prepend(lazypath)
-----------------------------------------------------------
-
 -- SECTION - CONFIG OPTIONS -----------------------------
 vim.g.mapleader = " "
 
@@ -74,6 +56,8 @@ vim.opt.winborder = 'rounded'
 
 vim.opt.completeopt:append({ 'noselect', 'fuzzy', 'popup', 'menuone' })
 
+vim.opt.foldlevel = 99
+
 
 vim.diagnostic.config({
     -- virtual_lines = { current_line = true },
@@ -85,332 +69,176 @@ vim.diagnostic.config({
 })
 -----------------------------------------------------------------------
 
--- SECTION - Setup lazy.nvim -------------------------------------------------
-require("lazy").setup({
-    git = {
-        timeout = 3600,
-    },
-    spec = {
-        {
-            'stevearc/oil.nvim',
-            ---@module 'oil'
-            ---@type oil.SetupOpts
-            opts = {},
-            -- Optional dependencies
-            -- dependencies = { { "nvim-mini/mini.icons", opts = {} } },
-            -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
-            -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
-            lazy = false,
-        },
-        {
-            "nvim-treesitter/nvim-treesitter",
-            branch = 'master',
-            lazy = false,
-            build = ":TSUpdate",
-            dependencies = {
-                {
-                    'nvim-treesitter/nvim-treesitter-textobjects',
-                    branch = 'master',
-                    event = "VeryLazy",
-                }
-            },
-            opts = function()
-                require 'nvim-treesitter.configs'.setup {
-                    -- A list of parser names, or "all" (the five listed parsers should always be installed)
-                    ensure_installed = {
-                        "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp",
-                        "javascript", "typescript", "diff", "jsonc",
-                        "json", "toml", "latex", "rust", "sql",
-                        "markdown", "markdown_inline", "html", "latex", "typst", "yaml", -- required by markdown previewer
-                    },
+vim.pack.add({
+    { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
+    { src = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects", version = "main" },
+    { src = "https://github.com/nvim-lua/plenary.nvim" },
+    { src = "https://github.com/nvim-telescope/telescope.nvim" },
+    { src = "https://github.com/nvim-telescope/telescope-ui-select.nvim" },
+    { src = "https://github.com/supermaven-inc/supermaven-nvim" },
+    { src = "https://github.com/neovim/nvim-lspconfig" },
+    { src = "https://github.com/tpope/vim-surround" },
+    { src = "https://github.com/tpope/vim-sleuth" },
+    { src = "https://github.com/lewis6991/gitsigns.nvim" },
+    { src = "https://github.com/stevearc/conform.nvim" },
+    { src = "https://github.com/rose-pine/neovim" },
+})
+-----------------------------------------------------------------------
 
-                    -- Install parsers synchronously (only applied to `ensure_installed`)
-                    sync_install = false,
-
-                    -- Automatically install missing parsers when entering buffer
-                    -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-                    auto_install = true,
-
-                    highlight = {
-                        enable = true,
-
-                        -- Commenting out because nvim 0.11 is running treesitter asynchronously
-                        --
-                        -- Disable slow treesitter highlight for large files
-                        -- disable = function(lang, buf)
-                        --     local max_filesize = 1024 * 1024
-                        --     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-                        --     if ok and stats and stats.size > max_filesize then
-                        --         return true
-                        --     end
-                        -- end,
-
-                        -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-                        -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-                        -- Using this option may slow down your editor, and you may see some duplicate highlights.
-                        -- Instead of true it can also be a list of languages
-                        additional_vim_regex_highlighting = false,
-                    },
-
-                    indent = {
-                        enable = true
-                    },
-
-                    textobjects = {
-                        select = {
-                            enable = true,
-                            lookahead = true,
-                            keymaps = {
-                                ['af'] = '@function.outer',
-                                ['if'] = '@function.inner',
-                                ['ac'] = '@class.outer',
-                                ['ic'] = '@class.inner',
-                            },
-                        },
-                        move = {
-                            enable = true,
-                            set_jumps = true,
-                            goto_next_start = {
-                                [']m'] = '@function.outer',
-                                [']]'] = '@class.inner',
-                            },
-                            goto_next_end = {
-                                [']M'] = '@function.outer',
-                                [']['] = '@class.outer',
-                            },
-                            goto_previous_start = {
-                                ['[m'] = '@function.outer',
-                                ['[['] = '@class.inner',
-                            },
-                            goto_previous_end = {
-                                ['[M'] = '@function.outer',
-                                ['[]'] = '@class.outer',
-                            },
-                        },
-                    }
-                }
-            end
-        },
-        {
-            'nvim-telescope/telescope.nvim',
-            tag = '0.1.8',
-            dependencies = {
-                'nvim-lua/plenary.nvim',
-                'nvim-telescope/telescope-ui-select.nvim'
-            },
-            lazy = false,
-            opts = function()
-                return {
-                    defaults = {
-                        preview = {
-                            timeout = 2000
-                        },
-                        mappings = {
-                            n = {
-                                ['<C-x>'] = require('telescope.actions').delete_buffer
-                            },
-                            i = {
-                                ['<C-x>'] = require('telescope.actions').delete_buffer,
-                            },
-                        },
-                        border = true,
-                        layout_strategy = 'horizontal',
-                        layout_config = {
-                            horizontal = {
-                                height = 0.95,
-                                preview_cutoff = 120,
-                                prompt_position = "bottom",
-                                width = 0.95
-                            },
-                            vertical = {
-                                height = 0.95,
-                                preview_cutoff = 40,
-                                prompt_position = "bottom",
-                                width = 0.95
-                            }
-                        },
-                        file_ignore_patterns = {
-                            "^node_modules/",
-                            "^dist/",
-                            "^%.next/",
-                            "^%.?venv/",
-                            "^%.mypy_cache/",
-                            "^%.pytest_cache/",
-                            "^__pycache__/",
-                            "^%.ruff_cache/",
-                            "^%.git/",
-                            "^target/",
-                        },
-                    },
-                    -- pickers = {
-                    --     find_files = {
-                    --         hidden = true,
-                    --         no_ignore = true,
-                    --         follow = true,
-                    --     },
-                    -- },
-                    extensions = {
-                        ["ui-select"] = {
-                            require('telescope.themes').get_dropdown({
-                                previewer = false,
-                            })
-                        }
-                    }
-
-                }
-            end
-        },
-        {
-            "supermaven-inc/supermaven-nvim",
-            config = function()
-                require("supermaven-nvim").setup({
-                    keymaps = {
-                        accept_suggestion = "<C-f>",
-                        clear_suggestion = "<C-k>",
-                        accept_word = "<C-l>",
-                    },
-                })
-            end,
-        },
-        { 'neovim/nvim-lspconfig', lazy = false },
-        { 'tpope/vim-surround',    event = "VeryLazy" },
-        { 'tpope/vim-sleuth',      event = "VeryLazy" },
-        {
-            'lewis6991/gitsigns.nvim',
-            event = "VeryLazy",
-            opts = {
-                current_line_blame = true,
-                current_line_blame_opts = { delay = 0 },
-                gh = true,
-            }
-        },
-        {
-            'stevearc/conform.nvim',
-            event = "VeryLazy",
-            opts = function()
-                vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-                return {
-                    formatters_by_ft = {
-                        markdown = { "prettier" },
-                        typescript = { "prettier" },
-                        typescriptreact = { "prettier" },
-                        javascript = { "prettier" },
-                        javascriptreact = { "prettier" },
-                        html = { "prettier" },
-                        css = { "prettier" },
-                    },
-                    formatters = {
-                        prettier = {
-                            prepend_args = function()
-                                return {
-                                    "--tab-width", "4",
-                                    "--print-width", "120",
-                                    "--config-precedence", "prefer-file",
-                                }
-                            end,
-                        },
-                    },
-                    default_format_opts = {
-                        lsp_format = "fallback",
-                    },
-                }
-            end
-        },
-        {
-            "folke/sidekick.nvim",
-            event = "VeryLazy",
-            opts = {
-                nes = {
-                    enabled = false,
-                    ---@class sidekick.diff.Opts
-                    ---@field inline? "words"|"chars"|false Enable inline diffs
-                    diff = {
-                        inline = "words",
-                    }
-                },
-                cli = {
-                    win = {
-                        layout = "float", ---@type "float"|"left"|"bottom"|"top"|"right"
-                        ---@type vim.api.keyset.win_config
-                        float = {
-                            width = 0.75,
-                            height = 0.75,
-                        },
-                        keys = {
-                            hide_n = false,
-                            hide_ctrl_q = false,
-                            hide_ctrl_dot = false,
-                            prompt = false,
-                            stopinsert = false,
-                        },
-                    }
-                },
-            },
-            keys = {
-                {
-                    "<c-.>",
-                    -- function() require("sidekick.cli").toggle({ name = "codex", focus = true }) end,
-                    function() require("sidekick.cli").toggle() end,
-                    desc = "Sidekick Toggle",
-                    mode = { "n", "t", "i", "x" },
-                },
-                {
-                    "<leader>at",
-                    function() require("sidekick.cli").send({ msg = "{this}" }) end,
-                    mode = { "x", "n" },
-                    desc = "Send This",
-                },
-                {
-                    "<leader>af",
-                    function() require("sidekick.cli").send({ msg = "{file}" }) end,
-                    desc = "Send File",
-                },
-                {
-                    "<leader>av",
-                    function() require("sidekick.cli").send({ msg = "{selection}" }) end,
-                    mode = { "x" },
-                    desc = "Send Visual Selection",
-                },
-                {
-                    "<leader>ap",
-                    function() require("sidekick.cli").prompt() end,
-                    mode = { "n", "x" },
-                    desc = "Sidekick Select Prompt",
-                },
-            },
-        },
-        {
-            "rose-pine/neovim",
-            name = "rose-pine",
-            config = function()
-                require("rose-pine").setup({
-                    styles = {
-                        transparency = true,
-                    },
-                })
-            end,
-        },
-    },
-    install = {},
-    checker = { enabled = false },
+require("nvim-treesitter").install({
+    "c", "lua", "vim", "vimdoc", "query", "go", "python", "cpp",
+    "javascript", "typescript", "diff", "jsonc",
+    "json", "toml", "latex", "rust", "sql",
+    "markdown", "markdown_inline", "html", "typst", "yaml",
 })
 
+vim.api.nvim_create_autocmd("FileType", {
+    callback = function()
+        -- might want to pcall()
+        vim.treesitter.start()
+
+        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+        vim.wo[0][0].foldmethod = "expr"
+    end,
+})
+
+require("nvim-treesitter-textobjects").setup({
+    select = {
+        lookahead = true,
+    },
+    move = {
+        set_jumps = true,
+    },
+})
+
+do
+    local select = require("nvim-treesitter-textobjects.select")
+    local move = require("nvim-treesitter-textobjects.move")
+
+    vim.keymap.set({ "x", "o" }, "af", function() select.select_textobject("@function.outer", "textobjects") end)
+    vim.keymap.set({ "x", "o" }, "if", function() select.select_textobject("@function.inner", "textobjects") end)
+    vim.keymap.set({ "x", "o" }, "ac", function() select.select_textobject("@class.outer", "textobjects") end)
+    vim.keymap.set({ "x", "o" }, "ic", function() select.select_textobject("@class.inner", "textobjects") end)
+
+    vim.keymap.set({ "n", "x", "o" }, "]f", function() move.goto_next_start("@function.outer", "textobjects") end)
+    vim.keymap.set({ "n", "x", "o" }, "]o", function() move.goto_next_start("@class.inner", "textobjects") end)
+    vim.keymap.set({ "n", "x", "o" }, "]F", function() move.goto_next_end("@function.outer", "textobjects") end)
+    vim.keymap.set({ "n", "x", "o" }, "]O", function() move.goto_next_end("@class.outer", "textobjects") end)
+
+    vim.keymap.set({ "n", "x", "o" }, "[f", function() move.goto_previous_start("@function.outer", "textobjects") end)
+    vim.keymap.set({ "n", "x", "o" }, "[o", function() move.goto_previous_start("@class.inner", "textobjects") end)
+    vim.keymap.set({ "n", "x", "o" }, "[F", function() move.goto_previous_end("@function.outer", "textobjects") end)
+    vim.keymap.set({ "n", "x", "o" }, "[O", function() move.goto_previous_end("@class.outer", "textobjects") end)
+end
+
+require("telescope").setup({
+    defaults = {
+        preview = {
+            timeout = 2000
+        },
+        mappings = {
+            n = {
+                ['<C-x>'] = require('telescope.actions').delete_buffer
+            },
+            i = {
+                ['<C-x>'] = require('telescope.actions').delete_buffer,
+            },
+        },
+        border = true,
+        layout_strategy = 'horizontal',
+        layout_config = {
+            horizontal = {
+                height = 0.95,
+                preview_cutoff = 120,
+                prompt_position = "bottom",
+                width = 0.95
+            },
+            vertical = {
+                height = 0.95,
+                preview_cutoff = 40,
+                prompt_position = "bottom",
+                width = 0.95
+            }
+        },
+        file_ignore_patterns = {
+            "^node_modules/",
+            "^dist/",
+            "^%.next/",
+            "^%.?venv/",
+            "^%.mypy_cache/",
+            "^%.pytest_cache/",
+            "^__pycache__/",
+            "^%.ruff_cache/",
+            "^%.git/",
+            "^target/",
+        },
+    },
+    extensions = {
+        ["ui-select"] = {
+            require('telescope.themes').get_dropdown({
+                previewer = false,
+            })
+        }
+    }
+})
 require 'telescope'.load_extension("ui-select")
 
+require("supermaven-nvim").setup({
+    keymaps = {
+        accept_suggestion = "<C-f>",
+        clear_suggestion = "<C-k>",
+        accept_word = "<C-l>",
+    },
+})
+
+require("gitsigns").setup({
+    current_line_blame = true,
+    current_line_blame_opts = { delay = 0 },
+    gh = true,
+})
+
+vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+require("conform").setup({
+    formatters_by_ft = {
+        markdown = { "prettier" },
+        typescript = { "prettier" },
+        typescriptreact = { "prettier" },
+        javascript = { "prettier" },
+        javascriptreact = { "prettier" },
+        html = { "prettier" },
+        css = { "prettier" },
+    },
+    formatters = {
+        prettier = {
+            prepend_args = function()
+                return {
+                    "--tab-width", "4",
+                    "--print-width", "120",
+                    "--config-precedence", "prefer-file",
+                }
+            end,
+        },
+    },
+    default_format_opts = {
+        lsp_format = "fallback",
+    },
+})
+
+require("rose-pine").setup({
+    styles = {
+        transparency = true,
+    },
+})
+-----------------------------------------------------------------------
+
 -- SECTION - COLORSCHEME ----------------------------------------------
-vim.cmd.colorscheme("rose-pine")
+-- vim.cmd.colorscheme("rose-pine")
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 -- vim.api.nvim_set_hl(0, "WinSeparator", { bg = "bg", fg = "#afaf8b" })
 -- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "bg" })
 -- vim.api.nvim_set_hl(0, "FloatBorder", { bg = "bg" })
 -- vim.api.nvim_set_hl(0, "PMenu", { bg = "none"})
-
--- rose-pine
--- murphy
--- retrobox
--- default
--- slate
--- gruvdark
 -----------------------------------------------------------------------
 
 -- SECTION - Custom LSP settings (on top of nvim-lspconfig)
@@ -437,17 +265,16 @@ vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
 
 -----------------------------------------------------------------------------
 -- SECTION - KEY MAPPINGS -----------------------------------------
--- vim.keymap.set("n", "<leader>ee", function()
---     if vim.bo.filetype ~= 'netrw' then
---         vim.cmd.Ex()
---     else
---         vim.cmd.bp()
---     end
--- end)
 vim.keymap.set("n", "<leader>ee", function()
-    -- vim.cmd("23Lex")
-    vim.cmd("Oil")
+    if vim.bo.filetype ~= 'netrw' then
+        vim.cmd.Ex()
+    else
+        vim.cmd.bp()
+    end
 end)
+-- vim.keymap.set("n", "<leader>ee", function()
+--     vim.cmd("23Lex")
+-- end)
 
 -- keep cursor in place
 vim.keymap.set("n", "J", "mzJ`z")
@@ -750,7 +577,7 @@ vim.keymap.set('t', '<c-x>', '<c-\\><c-n>')
 require('inline-edit').setup({
     llm = {
         provider = "cerebras",
-        model = "zai-glm-4.7",
+        model = "gemma-4-31b",
         reasoning_effort = "medium",
     },
     -- context = {
