@@ -1,5 +1,9 @@
-1. copilot language server via built int inline completion
-2. wtf is a codelens
-3. 0.13 will have a new dir view in place of netrw, move there
-4. folds in neovim, treesitter folds
+for 0.12:
+* copilot language server via built-in inline completion
+* wtf is a codelens
 
+for 0.13:
+* 0.13 will have a new dir view in place of netrw, move there
+* multi cursors
+* how does neovim remote work and can I use it over slow ssh?
+* how will undo on selection work

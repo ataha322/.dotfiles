@@ -1,0 +1,5 @@
+require'plugins.treesitter'
+require'plugins.telescope'
+require'plugins.gitsigns'
+require'plugins.conform'
+require'plugins.supermaven'
