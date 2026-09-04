@@ -28,6 +28,7 @@ vim.diagnostic.config({
 
 
 vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
+vim.lsp.codelens.enable(true)
 
 vim.keymap.set('n', 'grk', vim.diagnostic.open_float)
 vim.keymap.set("n", "grD", function()
@@ -36,5 +37,6 @@ end)
 vim.keymap.set('n', "grh", function()
     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end)
-
-
+vim.keymap.set('n', "grl", function()
+    vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled())
+end)

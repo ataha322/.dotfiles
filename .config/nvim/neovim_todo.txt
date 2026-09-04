@@ -1,6 +1,5 @@
 for 0.12:
 * copilot language server via built-in inline completion
-* wtf is a codelens
 
 for 0.13:
 * 0.13 will have a new dir view in place of netrw, move there
