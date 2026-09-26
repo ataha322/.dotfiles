@@ -12,7 +12,7 @@ local provider_defaults = {
     cerebras = {
         api_key_env = "CEREBRAS_API_KEY",
         endpoint_url = "https://api.cerebras.ai/v1/chat/completions",
-        model = "gpt-oss-120b",
+        model = "qwen-3.8-27b",
     },
 }
 

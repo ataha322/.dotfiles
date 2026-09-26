@@ -65,6 +65,7 @@ vim.pack.add({
     { src = "https://github.com/nvim-lua/plenary.nvim" },
     { src = "https://github.com/tpope/vim-surround" },
     { src = "https://github.com/tpope/vim-sleuth" },
+    { src = "https://github.com/sitiom/nvim-numbertoggle" },
 })
 
 -----------------------------------------------------------------------------
@@ -88,7 +89,7 @@ vim.keymap.set("v", "<leader>p", "\"_dP")
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 vim.keymap.set("v", "<leader>s", [[:s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
--- switch or delete buffers
+-- delete buffers
 vim.keymap.set("n", "<leader>q", vim.cmd.bd)
 
 -- move lines up and down
@@ -195,29 +196,12 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
     end
 })
 
--- relative number line when normal, absolute when insert mode
-vim.api.nvim_create_autocmd({ 'InsertEnter' }, {
-    callback = function()
-        if vim.bo.buftype == "" then
-            vim.opt_local.relativenumber = false
-        end
-    end,
-})
-vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
-    callback = function()
-        if vim.bo.buftype == "" then
-            vim.opt_local.relativenumber = true
-        end
-    end,
-})
-
-
 -- SECTION - MY PLUGINS DEVELOPMENT -----------------------------
 -- AI plugin
 require('inline-edit').setup({
     llm = {
         provider = "cerebras",
-        model = "gemma-4-31b",
+        model = "qwen-3.8-27b",
         reasoning_effort = "medium",
     },
 })

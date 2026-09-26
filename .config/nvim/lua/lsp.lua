@@ -21,14 +21,17 @@ vim.diagnostic.config({
     -- virtual_lines = { current_line = true },
     -- virtual_text = { current_line = true },
     jump = {
-        float = true
+        on_jump = function(diagnostic, bufnr)
+            vim.diagnostic.open_float()
+        end,
     },
     update_in_insert = true,
 })
 
 
 vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
-vim.lsp.codelens.enable(true)
+
+vim.lsp.codelens.enable(false)
 
 vim.keymap.set('n', 'grk', vim.diagnostic.open_float)
 vim.keymap.set("n", "grD", function()

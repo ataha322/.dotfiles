@@ -1,5 +1,6 @@
 for 0.12:
 * copilot language server via built-in inline completion
+* explore built-in plugins: E.g. UndoTree.
 
 for 0.13:
 * 0.13 will have a new dir view in place of netrw, move there
