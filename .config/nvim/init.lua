@@ -54,7 +54,7 @@ vim.opt.cursorline = true
 
 vim.opt.winborder = 'rounded'
 
-vim.opt.completeopt:append({ 'noselect', 'fuzzy', 'popup', 'menuone' })
+vim.opt.completeopt = 'noselect,fuzzy,popup,menuone'
 
 vim.opt.foldlevel = 99
 
