@@ -66,6 +66,7 @@ vim.pack.add({
     { src = "https://github.com/tpope/vim-surround" },
     { src = "https://github.com/tpope/vim-sleuth" },
     { src = "https://github.com/sitiom/nvim-numbertoggle" },
+    { src = "https://github.com/S1M0N38/ai.nvim" }, -- need for ata-ai-coding
 })
 
 -----------------------------------------------------------------------------
@@ -198,14 +199,12 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
 
 -- SECTION - MY PLUGINS DEVELOPMENT -----------------------------
 -- AI plugin
-require('inline-edit').setup({
-    llm = {
-        provider = "cerebras",
-        model = "qwen-3.8-27b",
-        reasoning_effort = "medium",
+require('ata-ai-coding').setup({
+    inline_edit = {
+        api_key = vim.env.ZAI_API_KEY,
     },
 })
-vim.keymap.set({ 'n', 'v' }, "<leader>ae", require('inline-edit').open_prompt, {
+vim.keymap.set('v', "<leader>ae", require('ata-ai-coding').inline_edit.prompt, {
     silent = true,
     desc = "Open inline-edit prompt",
 })

@@ -1,5 +1,9 @@
 {
   "plugins": {
+    "ai.nvim": {
+      "rev": "d773fe5d8a06e3be5855ad60e1bdcffab33edc48",
+      "src": "https://github.com/S1M0N38/ai.nvim"
+    },
     "conform.nvim": {
       "rev": "016802de402556da54c36bd7359b441266b01cdd",
       "src": "https://github.com/stevearc/conform.nvim"

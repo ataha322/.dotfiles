@@ -28,12 +28,13 @@ alias ll="ls --color -alFh"
 alias l="ls -CF"
 alias sspnd="systemctl suspend"
 alias ..="cd .."
-alias vim="nvim"
 alias kssh="kitten ssh"
 alias ssh="ssh -C"
 alias rsnk="rsync -havzcP --stats --exclude='.git' --exclude='oe-*' --exclude='output' --exclude='*.o' --exclude='tags' --exclude='*.pdf' --exclude='*.xlsx' --exclude='.cache'"
 alias python='python3'
 alias svenv='source $(poetry env info --path)/bin/activate || source venv/bin/activate'
+alias nvim="/opt/nvim-linux-x86_64/bin/nvim" # latest stable
+alias vim='/home/atxa/.local/nvim/bin/nvim' # master branch
 
 renv() {
     python_version="$1"
