@@ -200,7 +200,8 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
 })
 
 -- SECTION - MY PLUGINS DEVELOPMENT -----------------------------
--- AI plugin
+-- AI plugin, developed in its own repo (loaded from the working tree, so edits apply on restart)
+vim.opt.rtp:prepend(vim.fn.expand("~/code/projs/ata-ai-coding.nvim"))
 require('ata-ai-coding').setup({
     inline_edit = {
         api_key = function()
