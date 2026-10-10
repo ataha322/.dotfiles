@@ -205,15 +205,14 @@ vim.opt.rtp:prepend(vim.fn.expand("~/code/projs/ata-ai-coding.nvim"))
 require('ata-ai-coding').setup({
     inline_edit = {
         api_key = function()
-            return vim.env.CEREBRAS_API_KEY
-            -- return "asldkj"
-            -- return vim.env.ZAI_API_KEY
+            -- return vim.env.CEREBRAS_API_KEY
+            return vim.env.ZAI_API_KEY
         end,
-        base_url = "https://api.cerebras.ai/v1",
-        -- base_url = "https://api.z.ai/api/paas/v4",
+        -- base_url = "https://api.cerebras.ai/v1",
+        base_url = "https://api.z.ai/api/paas/v4",
         request = {
-            model = "qwen-3.8-27b",
-            -- model = "glm-5.3-flash",
+            -- model = "qwen-3.8-27b",
+            model = "glm-5.3-flashx",
         },
         log_level = vim.log.levels.WARN,
     },
