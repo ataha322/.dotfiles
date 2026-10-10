@@ -11,31 +11,44 @@ for 0.13:
 
 
 # inline-edit todo:
+we're doing a refactor or even a rewrite of inline-edit plugin. see directions below and see how it currently looks like.
+
 1. simplify. all should be procedural in a single inline_edit.lua, which is loaded by init.lua.
 2. replace our hacky llm.lua with plugin ai.nvim (make it required dependency).
 3. find bugs.
     * at least 1 bug - if llm request fails, then shimmer effect wouldn't stop, meaning exit condition didn't execute).
-    * another bug - shimmer doesn't work now, I don't see anything visually. could be a problem after upgrading to 0.11.0 to 0.12.5 (0.13 also doesn't show shimmer effect). UPD: it might be due to some other highlights - it works fine when I open say a .sh file, but not when open a rust file, presumably because I have either LSP or treesitter highliting for rust but nothing for shell (though I think I do have TS for shell).
-4. don't be afraid to simplify even functionally. e.g. if there's something simpler than shimmer to indicate the WIP, then replace it.
-5. need to support providers: openai, anthropic, cerebras (or anything openai compatible), llama.cpp. should be easy with ai.nvim, just need to find the right configuration format.
-6. It's fine to introduce breaking changes or change api or config formats to achieve all of the above in the best and simplest fashion, we own the codebase and are the only users.
+    * another bug - shimmer may not work sometimes because its colors have lower priority than LSP colors.
+4. don't be afraid to simplify even functionally. e.g. if there's something simpler than shimmer to indicate the WIP, then replace it. if something could be simplified, then do it. if something could be improved, then do it.
+5. need to support only a few providers - openai, anthropic. the rest should be openai-compatible. I think we can just not have any provider specific code at all with ai.nvim. Default should be GLM-5.3-Flash from z.ai. As least reasoning as possible. Temperature 0.2 default.
+6. It's fine to introduce breaking changes or change api or config formats to achieve all of the above in the best and simplest fashion, we own the codebase and are the only users. No backwards compatibility is needed.
 7. Many of the things were written thoughtlessly, so maybe even a full rewrite is better.
 8. Need a better ui prompt. right now we use vim.ui.input() which can be used in plain neovim or overridden by plugins. however, I want a different behaviour:
     * Since the inline-edit feature should only be triggered from visual selection, then I want the prompt to appear right above or below the selected lines, making visible space for input once action is hit, starting from 1-line.
     * How to decide above or below:
         - If user started selecting at the top and went down, then his current cursor is at the botton. input prompt should appear below.
         - If user started selecting at the bottom and went up, then his current cursor is at the top. input prompt should appear above.
-    * The input text should visibly seem as if it's the same buffer but not actually.
-    * The input prompt should be cancellable with double esc.
-    * Single esc should just go to normal mode.
-    * prompt should not be sent with enter, enter should behave like normal neovim (e.g. new line in insert mode). Instead, it should be sent with a binding (say <leader>a<enter>).
-9. While processing, the selected region should indicate it somehow (e.g. shimmer effect), and the prompt region should change a color to something that indicates that no more input is accepted atm (and don't accept no more input lol, may only be cancelled with double-esc).
+    * The prompt should be closable how you would normally close a floating window. if closed while processing, request should be cancelled.
+    * Prompt should be submitted with <enter> in normal mode (but only when cursor is in our prompt.
+    * Color of prompt should be different from the rest of the buffer. pick something standard. if we're doing it via a floating window, then NormalFloat is a good candidate (maybe it's even default?)
+    * This is what I got recommended:
+        > Recommended approach: a 1-line float anchored to the text, plus a virtual line to reserve the space.
+        > 
+        > A float with relative="win" and bufpos follows the buffer position as you scroll, and height=1 gives you your one-line prompt.
+        > A float alone covers the code above or below the selection. To avoid that, add an extmark with a blank virt_lines entry (virt_lines_above=true). That pushes the text down and leaves a hole for the float to sit in.
+9. While processing, the selected region should indicate it somehow (e.g. shimmer effect), and the prompt region should change a color to something that indicates that no more input is accepted atm (and don't accept no more input lol, may only be cancelled with double-esc). but don't close prompt if request cancelled, user might want to edit and resubmit prompt.
 10. Failure shouldn't break anything, just enough to indicate failure by highligting the prompt with some negative color (say red, but make sure to use some general HL group).
-    * After failure, user has 2 options, either to trigger it again to retry (again <leader>a<enter>), or cancel with double-esc.
+    * After failure, user has 2 options, either to resubmit or close the prompt.
 11. All of the above should be implemented with neovim 0.13 in mind. read neovim news on 0.13 and corresponding api docs. I think it provides some convenient ways to implement some of the features above. Like prompt-buffer (not sure if this is what we want), stitching multiple buffers (multibuffer?) might be useful for displaying input prompt visibly in the same buffer. Or even virtual text might be the right solution. If possible, I would prefer the input prompt area to behave like an inlined neovim buffer with its own command line, so that we could send prompt with :wq instead of a separate hotkey (this would be best if achievable). but if this is not simple then don't bother, I'm just under impression that 0.13 makes this easier.
-12. Some quality of development: improve logging with some standard way people do logging in neovim plugins.
+12. Some quality of development: simplify logging and log levels via native neovim logging mechanisms.
 13. Resulting code should only go to selected region (like it works now).
 14. context - 500 lines above and 100 lines below.
+15. don't worry about reading API key, assume user supplies it in setup command:
+-- require('ata-ai-coding').setup({
+--     inline_edit = {
+--         api_key = ..., -- either string or a function that returns string
+--     },
+-- })
+
 
 # improve context gathering:
 1. try to collect more information about the symbols in selected region. type definitions, signatures. think what else. but don't make it too much - no need to dig too deep. So maybe only 1 level of depth of symbol definition is enough? obviously we don't care for stdlib definitions or 3rd party libraries so don't wanna dig too deep. Seems like this depends on LSP (but see if this can be done somehow else?).

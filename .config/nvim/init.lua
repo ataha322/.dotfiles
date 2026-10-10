@@ -181,15 +181,17 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     end,
 })
 
--- Save and restore window view when switching buffers
-vim.api.nvim_create_autocmd({ 'BufLeave' }, {
+-- Save and restore window view when switching buffers.
+-- BufWin* rather than Buf*: those also fire when focusing a float (or any window) with another buffer,
+-- which saved a view of the wrong window and restored it on return.
+vim.api.nvim_create_autocmd({ 'BufWinLeave' }, {
     callback = function(args)
         if vim.bo[args.buf].buftype == '' then
             vim.b[args.buf].view = vim.fn.winsaveview()
         end
     end
 })
-vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
     callback = function(args)
         if vim.b[args.buf].view ~= nil then
             vim.fn.winrestview(vim.b[args.buf].view)
@@ -201,10 +203,21 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
 -- AI plugin
 require('ata-ai-coding').setup({
     inline_edit = {
-        api_key = vim.env.ZAI_API_KEY,
+        api_key = function()
+            return vim.env.CEREBRAS_API_KEY
+            -- return "asldkj"
+            -- return vim.env.ZAI_API_KEY
+        end,
+        base_url = "https://api.cerebras.ai/v1",
+        -- base_url = "https://api.z.ai/api/paas/v4",
+        request = {
+            model = "qwen-3.8-27b",
+            -- model = "glm-5.3-flash",
+        },
+        log_level = vim.log.levels.WARN,
     },
 })
-vim.keymap.set('v', "<leader>ae", require('ata-ai-coding').inline_edit.prompt, {
+vim.keymap.set('x', "<leader>ae", require('ata-ai-coding').inline_edit.prompt, {
     silent = true,
     desc = "Open inline-edit prompt",
 })
