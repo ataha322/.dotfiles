@@ -29,7 +29,8 @@ vim.diagnostic.config({
 })
 
 
-vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer' })
+vim.lsp.enable({ 'ts_ls', 'basedpyright', 'gopls', 'lua_ls', 'rust_analyzer', 'clangd' })
+vim.lsp.enable('clangd', false)
 
 vim.lsp.codelens.enable(false)
 
